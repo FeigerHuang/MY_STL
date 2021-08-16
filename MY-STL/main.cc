@@ -4,6 +4,21 @@
 #include "my_slist.h"
 #define BEGIN(x) namespace x {
 #define END(x)   } // end of namespace x
+
+#define BLU  "\033[34m"
+#define YEL  "\033[33m"
+#define RED  "\033[31m"
+#define FIN   "\033[0m"
+
+
+#define Test(func, args...) {\
+    std::cout << RED << #func  << "("<< #args <<") = " << FIN \
+    << func(args) << std::endl;\
+}
+
+
+
+
 using namespace feiger;
 
 struct AP{
@@ -244,18 +259,100 @@ int main() {
     } 
     for (auto x : v4) std::cout << x << " ";
     std::cout << std::endl;
+    auto first = v4.begin();
+    auto last = v4.begin() + 2;
+    v4.erase(first, last); 
+    std::cout << "erase v4 at 0 to 2 :";
+    for (auto x : v4) std::cout << x << " ";
+    std::cout << std::endl <<  "v4 capacity ="<<v4.capacity() << std::endl;
+    v4.insert(v4.begin() + 2, 8, 6);
+    
+    std::cout << "after v4 insert 8 cnt of 6 in 2 capacity = "<<v4.capacity() << std::endl;
+    for (auto x : v4) std::cout << x << " ";
+    std::cout << std::endl;
+
+    std::cout << v4.size() << " capacity = " << v4.capacity() << std::endl;
+    
+    for (int i = 0; i < 6; ++i) {
+        v4.push_back(1);
+        std::cout << "now v4.capacity = " << v4.capacity() << std::endl;
+    }
+
+    v4.clear();
+    std::cout << "after v4 clear() : v4.size() = ";
+    std::cout << v4.size() << " capacity = " << v4.capacity() << std::endl;
+
+    const vector<int> v5(12, 3);
+    //v5[3] = 6;
+    std::cout << "v5[3] = "<< v5[3] << std::endl;
+    for (auto x : v5) std::cout << x << " ";
 
     return 0;
 }
 
 END(vec_test)
 
+#include "my_function.h"
+
+BEGIN(func_test)
+
+int main() {
+    
+    using std::cout;
+    using std::endl;
+
+    plus<int> plusobj;
+    minus<int>  minusobj;
+    multiplies<double>  mulobj;
+    divides<double>  divobj;
+    modulus<int> modobj;
+    negate<int>  negobj;
+    
+    //Test(plusobj, 1, 2);
+    //Test(minusobj, 123, 23);
+    //Test(mulobj, 34, 2.5);
+    //Test(divobj, 6.9, 0.3);
+    //Test(modobj, 34234123, 2);
+    //Test(negobj,   -2342);
+    
+    equal_to<int> eqto_obj;
+    not_equal_to<int> not_eq_obj;
+    greater<int>  greater_obj;
+    greater_equal<int> great_equal_obj;
+    less<int> less_obj;
+    less_euqal<int> less_euqal_obj;
+    
+    //Test(eqto_obj, 3, 5);
+    //Test(not_eq_obj, 1, 1.5);
+    //Test(great_equal_obj, 3, 2);
+    //Test(greater_obj, 3,  3);
+    //Test(less_euqal_obj, 2, 2);
+    //Test(less_obj, 4, 3);
+    
+    logic_and<int> and_obj;
+    logic_or<int>  or_obj;
+    logic_not<int> not_obj;
+    
+    Test(and_obj, 0, 1);
+    Test(or_obj, 1, 0);
+    Test(and_obj, 1, 2);
+    Test(not_obj, 0);
+    Test(not_obj, 7);
+
+
+    return 0;
+}
+
+END(func_test)
+
 int main() {
     //allocator_test::main();
     //slist_test::main();
     //algo_test::main();
     //algo_test2::main();
-    vec_test::main();
+    //vec_test::main();
+    func_test::main();
+
 
     return 0;
 }

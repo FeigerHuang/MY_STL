@@ -20,7 +20,7 @@
 
 _MY_NAMESPACE_BEGIN
 
-//fill & fill_n BEGIN
+//_M_fill & _M_fill_n BEGIN
 
 template <class ForwardIterator, class T>
 ForwardIterator _M_fill(ForwardIterator first, ForwardIterator last, const T& value) {

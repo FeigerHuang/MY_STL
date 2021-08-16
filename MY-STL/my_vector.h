@@ -28,6 +28,10 @@ public:
     typedef value_type&     reference;
     typedef size_t          size_type;
     typedef ptrdiff_t       difference_type;
+    typedef const T               const_value_type;
+    typedef const value_type*     const_pointer;
+    typedef const value_type*     const_iterator;
+    typedef const value_type&     const_reference;
 
 protected:
     typedef simple_alloc<T> data_allocatetor;
@@ -57,15 +61,17 @@ protected:
         return result;
     }
 public:
-    iterator begin() {return start;}
-    iterator end()   {return finish;}
+    iterator begin() const {return start;}
+    iterator end()  const  {return finish;}
+    const_iterator cbegin() const {return start;}
+    const_iterator cend()  const  {return finish;}
     size_type size() {return size_type(end() - begin());}
     size_type capacity() {return size_type(end_of_storage - start);}
     reference front() {return *begin();}
     reference back() {return *(end() - 1);}
     bool empty() {return begin() == end();}
     reference operator[](size_type n) {return *(begin() + n);}
-
+    const_reference operator[](size_type n) const {return *(cbegin() + n);}
     vector() : start(0), finish(0), end_of_storage(0) {}
     vector(size_type n, const T& value) {fill_initialize(n, value);}
     vector(int n, const T& value) {fill_initialize(n, value);}
@@ -77,16 +83,76 @@ public:
         deallocate();
     }
     
+    void clear() {erase(begin(), end());}
     void push_back(const T&);
     void pop_back();
     iterator erase(iterator pos);
+    iterator erase(iterator first, iterator last);
+    void insert(iterator pos, const T& x);
+    void insert(iterator pos, size_type n, const T& x);
 };
+
+template <class T, class Alloc>
+typename vector<T,Alloc>::iterator 
+vector<T, Alloc>::erase(iterator first, iterator last) {
+    iterator new_finish = first;
+    if (last != finish) {
+        new_finish = copy(last, finish, first);
+    }
+    destroy(new_finish, finish);
+    return finish = new_finish;
+}
 
 template <class T, class Alloc>
 void vector<T, Alloc>::pop_back() {
     --finish;
     destroy(finish);
     return;
+}
+
+template<class T, class Alloc>
+void vector<T, Alloc>::insert(iterator pos, const T& x) {
+    insert_aux(pos, x);
+    return ;
+}
+
+template<class T, class Alloc>
+void vector<T, Alloc>::insert(iterator pos, size_type n, const T& x) {
+    if (n == 0) return ;
+    //当备用空间够用时;
+    if (size_type(end_of_storage - finish) >= n) {
+        T x_copy = x;
+        
+        iterator old_finish = finish;
+        copy(finish - n, finish, finish);
+        finish += n;
+        copy_backward(pos, old_finish - n, old_finish);
+        _M_fill(pos, pos + n, x_copy);
+    } 
+    else {
+        const size_type old_size = size();
+        const size_type len = old_size + std::max(old_size, n);
+        
+        iterator new_start = data_allocatetor::allocate(len);
+        iterator new_finish = new_start;
+        
+        try{
+            new_finish = copy(start, pos, new_start);
+            new_finish = uninitialized_fill_n(new_finish, n, x);
+            new_finish = copy(pos, finish, new_finish);
+        }
+        catch(...){
+            destroy(new_start, new_finish);
+            data_allocatetor::deallocate(new_start, len);
+            throw;
+        }
+        destroy(start, finish);
+        deallocate();
+        
+        start = new_start;
+        finish = new_finish;
+        end_of_storage =  new_start + len;
+    }
 }
 
 template<class T, class Alloc>
