@@ -206,6 +206,8 @@ struct project2nd : public binary_function<Arg1, Arg2, Arg2>
 };
 
 // 其他 仿函数 END;
+
+
 _MY_NAMESPACE_END
 
 #endif

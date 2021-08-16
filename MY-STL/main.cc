@@ -344,6 +344,53 @@ int main() {
 }
 
 END(func_test)
+#include "my_functional.h"
+#include <algorithm>
+
+BEGIN(funp_test)
+
+using std::cout;
+using std::endl;
+
+int add(int a, int b) {
+    cout << "call add(a, b)" << endl;
+    return a + b;
+}
+
+struct CF {
+    int operator()(int a, int b) {
+        cout << "call obj.operator()" << endl;
+        return a * b;
+    }  
+};
+
+int main() {
+    
+    function<int(int, int)> mfu;
+    mfu = add;
+    Test(mfu, 1, 5);
+    
+    CF obj;
+    function<int(int, int)> fp(obj);     
+    Test(fp, 5, 7);
+
+    fp = mfu;
+    cout << "after swap mfu, fp" << endl; 
+    Test(fp, 5, 7);
+    
+    function<int(int, int)>  fp2(std::move(fp));
+    Test(fp2, 5, 7);
+    
+    fp2 = mfu;
+    Test(fp2, 6, 7);
+
+    mfu = std::move(fp2);
+    Test(mfu, 6, 7);
+
+    return 0;
+}
+
+END(funp_test)
 
 int main() {
     //allocator_test::main();
@@ -351,8 +398,8 @@ int main() {
     //algo_test::main();
     //algo_test2::main();
     //vec_test::main();
-    func_test::main();
-
+    //func_test::main();
+    funp_test::main();
 
     return 0;
 }
