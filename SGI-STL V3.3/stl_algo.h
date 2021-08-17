@@ -1468,7 +1468,7 @@ inline void sort(_RandomAccessIter __first, _RandomAccessIter __last) {
   __STL_REQUIRES(typename iterator_traits<_RandomAccessIter>::value_type,
                  _LessThanComparable);
   if (__first != __last) {
-    __introsort_loop(__first, __last,
+    __introsorjt_loop(__first, __last,
                      __VALUE_TYPE(__first),
                      __lg(__last - __first) * 2);
     __final_insertion_sort(__first, __last);

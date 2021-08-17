@@ -392,6 +392,74 @@ int main() {
 
 END(funp_test)
 
+
+#include "my_algorithm.h"
+BEGIN(algori_test)
+
+using std::cout;
+using std::endl;
+
+struct Node{
+    int x, y;
+};
+
+std::ostream& operator<<(std::ostream& out, const Node& b) {
+    return out << "( " << b.x << "," << b.y << " )";
+}
+
+struct CMP{
+    bool operator()(const Node& a, const Node& b) {
+        return a.x * a.y < b.x * b.y;
+    }
+};
+
+
+int main() {
+    srand(time(NULL));
+    vector<int> v1(150, 0);
+    int val;
+    for (int i = 0; i < 150; ++i) {
+        val = rand() % 1000;
+        v1[i] = val;
+    }
+    for (auto x : v1) cout << x << " ";
+    cout << endl;
+
+   // insertion_sort(v1.begin(), v1.end());
+   // cout << "after insertion_sort :" << endl;
+   // for (auto x : v1) cout << x << " ";
+   // cout << endl;
+    
+   // quick_sort(v1.begin(), v1.end());
+   // cout << "after quick_sort :" << endl;
+   // for (auto x : v1) cout << x << " ";
+   // cout << endl;
+    
+   // sort(v1.begin(), v1.end());
+   // cout << "after my_sort :" << endl;
+   // for (auto x : v1) cout << x << " ";
+   // cout << endl;
+    vector<Node> vec(15);
+    int vb;
+    for (int i = 0; i < 15; ++i) {
+        val = rand() % 100;
+        vb = rand() % 10;
+        vec[i] = {val, vb};
+    }
+    for (auto x : vec) cout << x << " ";
+    cout << endl;
+    sort(vec.begin(), vec.end(), CMP());
+    cout << "after my_sort :" << endl;
+    for (auto x : vec) cout << x << " ";
+    cout << endl;
+
+    return 0;
+}
+
+
+END(algori_test)
+
+
 int main() {
     //allocator_test::main();
     //slist_test::main();
@@ -399,7 +467,9 @@ int main() {
     //algo_test2::main();
     //vec_test::main();
     //func_test::main();
-    funp_test::main();
+    //funp_test::main();
+    algori_test::main();
+
 
     return 0;
 }
