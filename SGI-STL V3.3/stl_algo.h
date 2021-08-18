@@ -1468,7 +1468,7 @@ inline void sort(_RandomAccessIter __first, _RandomAccessIter __last) {
   __STL_REQUIRES(typename iterator_traits<_RandomAccessIter>::value_type,
                  _LessThanComparable);
   if (__first != __last) {
-    __introsorjt_loop(__first, __last,
+    __introsort_loop(__first, __last,
                      __VALUE_TYPE(__first),
                      __lg(__last - __first) * 2);
     __final_insertion_sort(__first, __last);
@@ -1911,7 +1911,7 @@ inline void nth_element(_RandomAccessIter __first, _RandomAccessIter __nth,
 
 
 // Binary search (lower_bound, upper_bound, equal_range, binary_search).
-
+// 找到第一个大于等于 val 的元素, range必须是有序的;
 template <class _ForwardIter, class _Tp, class _Distance>
 _ForwardIter __lower_bound(_ForwardIter __first, _ForwardIter __last,
                            const _Tp& __val, _Distance*) 
@@ -1920,17 +1920,18 @@ _ForwardIter __lower_bound(_ForwardIter __first, _ForwardIter __last,
   distance(__first, __last, __len);
   _Distance __half;
   _ForwardIter __middle;
-
+    // 当搜索区间长度为 0,左右指针重和, 返回答案;
   while (__len > 0) {
     __half = __len >> 1;
     __middle = __first;
     advance(__middle, __half);
+    // 小于 val , 左指针移动到 mid + 1;
     if (*__middle < __val) {
       __first = __middle;
       ++__first;
       __len = __len - __half - 1;
     }
-    else
+    else  // 大于等于的部分即为答案所在区间;
       __len = __half;
   }
   return __first;

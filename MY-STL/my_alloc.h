@@ -99,7 +99,7 @@ public:
         return 0 == n ? 0 : (T*)Alloc::allocate(n * sizeof(T));
     }
     
-    static T *allocate(void ){
+    static T *allocate(void){
         return (T*)Alloc::allocate(sizeof(T));
     }
     

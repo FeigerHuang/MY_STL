@@ -51,7 +51,7 @@ struct _Hashtable_node
 {
   _Hashtable_node* _M_next;
   _Val _M_val;
-};  
+}; // node 是链表节点; 
 
 template <class _Val, class _Key, class _HashFcn,
           class _ExtractKey, class _EqualKey, class _Alloc = alloc>
@@ -65,6 +65,7 @@ template <class _Val, class _Key, class _HashFcn,
           class _ExtractKey, class _EqualKey, class _Alloc>
 struct _Hashtable_const_iterator;
 
+// Hashtable的迭代器;
 template <class _Val, class _Key, class _HashFcn,
           class _ExtractKey, class _EqualKey, class _Alloc>
 struct _Hashtable_iterator {
@@ -121,11 +122,12 @@ struct _Hashtable_const_iterator {
   typedef _Val value_type;
   typedef ptrdiff_t difference_type;
   typedef size_t size_type;
+  // 加上了 const 关键字; 
   typedef const _Val& reference;
   typedef const _Val* pointer;
 
   const _Node* _M_cur;
-  const _Hashtable* _M_ht;
+  const _Hashtable* _M_ht; // 利用_M_ht回溯到哈希table
 
   _Hashtable_const_iterator(const _Node* __n, const _Hashtable* __tab)
     : _M_cur(__n), _M_ht(__tab) {}
@@ -146,7 +148,7 @@ struct _Hashtable_const_iterator {
 
 // Note: assumes long is at least 32 bits.
 enum { __stl_num_primes = 28 };
-
+// 准备的很周到, 素数已经备好, 方便扩容
 static const unsigned long __stl_prime_list[__stl_num_primes] =
 {
   53ul,         97ul,         193ul,       389ul,       769ul,
@@ -203,7 +205,7 @@ public:
   hasher hash_funct() const { return _M_hash; }
   key_equal key_eq() const { return _M_equals; }
 
-private:
+private:      // Node里面有next指针和存放的val值;
   typedef _Hashtable_node<_Val> _Node;
 
 #ifdef __STL_USE_STD_ALLOCATORS
@@ -230,7 +232,7 @@ private:
   hasher                _M_hash;  // hash func 
   key_equal             _M_equals; // 判断键值相等的function 
   _ExtractKey           _M_get_key; // 提前键值 的function
-  vector<_Node*,_Alloc> _M_buckets;   // buckets
+  vector<_Node*,_Alloc> _M_buckets;   // buckets, 存放链表头节点;
   size_type             _M_num_elements; 
 
 public:
@@ -251,7 +253,7 @@ public:
             const _EqualKey&   __eql,
             const _ExtractKey& __ext,
             const allocator_type& __a = allocator_type())
-    : __HASH_ALLOC_INIT(__a)
+    : __HASH_ALLOC_INIT(__a)  // 就是define了一个 _M_node_allocator(__a),
       _M_hash(__hf),
       _M_equals(__eql),
       _M_get_key(__ext),
@@ -306,6 +308,7 @@ public:
   size_type max_size() const { return size_type(-1); }
   bool empty() const { return size() == 0; }
 
+  //定义swap函数, 当时还没出C++11;设计移动构造用这个方便;
   void swap(hashtable& __ht)
   {
     __STD::swap(_M_hash, __ht._M_hash);
@@ -316,7 +319,7 @@ public:
   }
 
   iterator begin()
-  { 
+  { // 找到第一个存值的节点, 构造迭代器; 
     for (size_type __n = 0; __n < _M_buckets.size(); ++__n)
       if (_M_buckets[__n])
         return iterator(_M_buckets[__n], this);
@@ -516,11 +519,11 @@ public:
 private:
   size_type _M_next_size(size_type __n) const
     { return __stl_next_prime(__n); }
-
+    // 初始化 桶子;
   void _M_initialize_buckets(size_type __n)
   {
     const size_type __n_buckets = _M_next_size(__n);
-    _M_buckets.reserve(__n_buckets);
+    _M_buckets.reserve(__n_buckets);  // 设置桶子的数量;
     _M_buckets.insert(_M_buckets.end(), __n_buckets, (_Node*) 0);
     _M_num_elements = 0;
   }
@@ -1019,10 +1022,10 @@ void hashtable<_Val,_Key,_HF,_Ex,_Eq,_All>::clear()
     _Node* __cur = _M_buckets[__i];
     while (__cur != 0) {
       _Node* __next = __cur->_M_next;
-      _M_delete_node(__cur);
-      __cur = __next;
+      _M_delete_node(__cur); // 删除当前节点
+      __cur = __next;   // 当前节点定位到next
     }
-    _M_buckets[__i] = 0;
+    _M_buckets[__i] = 0; // 槽位设空;
   }
   _M_num_elements = 0;
     // 注意 buckets并未释放空间， 仍未原大小；
@@ -1033,7 +1036,7 @@ template <class _Val, class _Key, class _HF, class _Ex, class _Eq, class _All>
 void hashtable<_Val,_Key,_HF,_Ex,_Eq,_All>
   ::_M_copy_from(const hashtable& __ht)
 {
-    // 将己方 的空间清除， 然后设置的和对放一样大；
+    // 将己方 的空间清除， 然后设置的和对方一样大；
   _M_buckets.clear();
   _M_buckets.reserve(__ht._M_buckets.size());
     // 设置bucket所有的槽为 nullptr
@@ -1056,7 +1059,7 @@ void hashtable<_Val,_Key,_HF,_Ex,_Eq,_All>
     }
     _M_num_elements = __ht._M_num_elements;
   }
-  __STL_UNWIND(clear());
+  __STL_UNWIND(clear()); // 就是定义了这个 define __STL_UNWIND(action) catch(...) { action; throw; }
 }
 
 __STL_END_NAMESPACE

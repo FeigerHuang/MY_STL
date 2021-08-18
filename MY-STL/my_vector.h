@@ -65,8 +65,8 @@ public:
     iterator end()  const  {return finish;}
     const_iterator cbegin() const {return start;}
     const_iterator cend()  const  {return finish;}
-    size_type size() {return size_type(end() - begin());}
-    size_type capacity() {return size_type(end_of_storage - start);}
+    size_type size() const {return size_type(end() - begin());}
+    size_type capacity() const {return size_type(end_of_storage - start);}
     reference front() {return *begin();}
     reference back() {return *(end() - 1);}
     bool empty() {return begin() == end();}
@@ -90,7 +90,27 @@ public:
     iterator erase(iterator first, iterator last);
     void insert(iterator pos, const T& x);
     void insert(iterator pos, size_type n, const T& x);
+    void resize(size_type n, const T& x);
+    void resize(size_type n);
 };
+
+template<class T, class Alloc>
+void vector<T, Alloc>::resize(size_type n, const T& x)
+{
+    if (n < size()) {
+        erase(begin() + n , end());
+    }
+    else{
+        insert(end(), n - size(), x);
+    }
+}
+
+template<class T, class Alloc>
+void vector<T, Alloc>::resize(size_type n) 
+{
+    resize(n, T());
+}
+
 
 template <class T, class Alloc>
 typename vector<T,Alloc>::iterator 

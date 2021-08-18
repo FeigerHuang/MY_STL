@@ -282,10 +282,18 @@ int main() {
     std::cout << "after v4 clear() : v4.size() = ";
     std::cout << v4.size() << " capacity = " << v4.capacity() << std::endl;
 
-    const vector<int> v5(12, 3);
+    v4.resize(28);
+    std::cout << "after v4.reserve(28) :";
+    std::cout << v4.size() << " capacity = " << v4.capacity() << std::endl;
+    for (auto x : v4) std::cout << x << " ";
+    std::cout << std::endl;
+
+    //const vector<int> v5(12, 3);
     //v5[3] = 6;
-    std::cout << "v5[3] = "<< v5[3] << std::endl;
-    for (auto x : v5) std::cout << x << " ";
+    //std::cout << "v5[3] = "<< v5[3] << std::endl;
+    //for (auto x : v5) std::cout << x << " ";
+    
+
 
     return 0;
 }
@@ -396,6 +404,7 @@ END(funp_test)
 #include "my_algorithm.h"
 BEGIN(algori_test)
 
+using std::cin;
 using std::cout;
 using std::endl;
 
@@ -424,6 +433,21 @@ int main() {
     }
     for (auto x : v1) cout << x << " ";
     cout << endl;
+    
+    sort(v1.begin(), v1.end());
+    cout << "after sort :" << endl;
+    for (auto x : v1) cout << x << " ";
+    cout << endl;
+    
+    int x;
+    while (cin >> x) {
+        auto it = upper_bound(v1.begin(), v1.end(), x);
+        cout << x << " : upper_bound in v1 = " << *it << endl;
+    }
+    //while (cin >> x) {
+    //    auto it = lower_bound(v1.begin(), v1.end(), x);
+    //    cout << x << " : lower_bound in v1 = " << *it << endl;
+    //}
 
    // insertion_sort(v1.begin(), v1.end());
    // cout << "after insertion_sort :" << endl;
@@ -439,26 +463,44 @@ int main() {
    // cout << "after my_sort :" << endl;
    // for (auto x : v1) cout << x << " ";
    // cout << endl;
-    vector<Node> vec(15);
-    int vb;
-    for (int i = 0; i < 15; ++i) {
-        val = rand() % 100;
-        vb = rand() % 10;
-        vec[i] = {val, vb};
-    }
-    for (auto x : vec) cout << x << " ";
-    cout << endl;
-    sort(vec.begin(), vec.end(), CMP());
-    cout << "after my_sort :" << endl;
-    for (auto x : vec) cout << x << " ";
-    cout << endl;
+   // vector<Node> vec(15);
+   // int vb;
+   // for (int i = 0; i < 15; ++i) {
+   //     val = rand() % 100;
+   //     vb = rand() % 10;
+   //     vec[i] = {val, vb};
+   // }
+   // for (auto x : vec) cout << x << " ";
+   // cout << endl;
+   // sort(vec.begin(), vec.end(), CMP());
+   // cout << "after my_sort :" << endl;
+   // for (auto x : vec) cout << x << " ";
+   // cout << endl;
 
     return 0;
 }
 
-
 END(algori_test)
 
+#include "my_unordered_set.h"
+
+BEGIN(hash_test)
+
+using std::cin;
+using std::cout;
+using std::endl;
+
+int main() {
+    unordered_set<int> mst1;
+    vector<int> bt;
+    bt.resize(10);
+    cout << mst1.rep.bucket_count() << endl;
+    cout << bt.size() << endl;
+    return 0;
+}
+
+
+END(hash_test)
 
 int main() {
     //allocator_test::main();
@@ -468,8 +510,8 @@ int main() {
     //vec_test::main();
     //func_test::main();
     //funp_test::main();
-    algori_test::main();
-
+    //algori_test::main();
+    hash_test::main();
 
     return 0;
 }

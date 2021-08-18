@@ -46,6 +46,74 @@ const T& min(const T& x, const T& y, Cmp cmp) {
 
 //max & min END
 
+// lower_bound & upper_bound BEGIN
+template <class ForwardIterator, class T, class Distance>
+inline 
+ForwardIterator __lower_bound(ForwardIterator first,ForwardIterator last, const T& val, Distance *)
+{
+    Distance len = 0;
+    len = distance(first, last);
+    Distance half;
+    ForwardIterator middle;
+
+    while (len > 0) {
+        half = len >> 1;
+        middle = first;
+        advance(middle, half);
+        
+        if (*middle < val) {
+            first = middle;
+            ++first;
+            len = len - half - 1;
+        } 
+        else{
+            len = half;
+        }
+    }
+    return first;
+}
+
+template <class ForwardIterator, class T>
+inline 
+ForwardIterator lower_bound(ForwardIterator first, ForwardIterator last,const T& val) {
+    return __lower_bound(first, last, val, get_difference_type(first));
+}
+
+
+template <class ForwardIterator, class T, class Distance>
+ForwardIterator __upper_bound(ForwardIterator first, ForwardIterator last,
+                             const T& val, Distance *)
+{
+    Distance len;
+    len = distance(first, last);
+    ForwardIterator middle;
+    Distance half;
+
+    while (len > 0) {
+        half = len >> 1;
+        middle = first;
+        advance(middle, half);
+        
+        if (val < *middle) {
+            len = half;
+        }
+        else {
+            first = middle;
+            ++first;
+            len = len - half - 1;
+        }
+    }
+    return first;
+}
+
+template <class ForwardIterator, class T>
+inline 
+ForwardIterator upper_bound(ForwardIterator first, ForwardIterator last, const T& val) {
+    return __upper_bound(first, last, val, get_difference_type(first));
+}
+
+// lower_bound & upper_bound END
+
 // sort 算法 BEGIN
 
 // sort 要用到的一些辅助算法;
