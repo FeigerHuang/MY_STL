@@ -218,82 +218,96 @@ BEGIN(vec_test)
 
 
 int main() {
-    vector<int> vc1(5, 7);
-    for (auto it = vc1.begin(); it != vc1.end(); ++it) {
-        std::cout << *it << " ";
-    }
-    std::cout << std::endl;
-    vector<int> vc2(6);
-    for (auto it = vc2.begin(); it != vc2.end(); ++it) {
-        std::cout << *it << " ";
-    }
-    std::cout << std::endl << "vec2 size() = " << vc2.size();
-    std::cout << " |vec2 empty() =" << std::boolalpha << vc2.empty() << std::endl;
-    for (int i = 0; i < vc2.size(); ++i) {
-        vc2[i] = i + 1;
-    }
-    std::cout << "after modify vec2 :";
-    for (auto it : vc2) std::cout << it << " ";
-    std::cout << "vec2.front() = " << vc2.front() << std::endl;
-    std::cout << "vec2.back() = " << vc2.back() << std::endl;
-    std::cout << std::endl;
-    vector<Node> vc3(5, Node());
-    vc3.pop_back();
-    std::cout << "\nafter vc3 pop_back() :"; 
-    for (auto it = vc3.begin(); it != vc3.end(); ++it) {
-        std::cout << *it << " ";
-    }
-    std::cout << std::endl;
-    vc3.push_back(1);
-    auto iter = vc2.begin() + 1;
-    vc2.erase(iter);
-    std::cout << "\nafter erase ve2 position = 1 : ";
-    for (auto it = vc2.begin(); it != vc2.end(); ++it) {
-        std::cout << *it << " ";
-    }
-    std::cout << std::endl;
-    std::cout << "--------------------------\n";
-    feiger::vector<int>  v4(1, 2);
-    for (int i = 0; i < 6; ++i) {
-        v4.push_back(i);
-    } 
-    for (auto x : v4) std::cout << x << " ";
-    std::cout << std::endl;
-    auto first = v4.begin();
-    auto last = v4.begin() + 2;
-    v4.erase(first, last); 
-    std::cout << "erase v4 at 0 to 2 :";
-    for (auto x : v4) std::cout << x << " ";
-    std::cout << std::endl <<  "v4 capacity ="<<v4.capacity() << std::endl;
-    v4.insert(v4.begin() + 2, 8, 6);
-    
-    std::cout << "after v4 insert 8 cnt of 6 in 2 capacity = "<<v4.capacity() << std::endl;
-    for (auto x : v4) std::cout << x << " ";
-    std::cout << std::endl;
+    //vector<int> vc1(5, 7);
+    //for (auto it = vc1.begin(); it != vc1.end(); ++it) {
+    //    std::cout << *it << " ";
+    //}
+    //std::cout << std::endl;
+    //vector<int> vc2(6);
+    //for (auto it = vc2.begin(); it != vc2.end(); ++it) {
+    //    std::cout << *it << " ";
+    //}
+    //std::cout << std::endl << "vec2 size() = " << vc2.size();
+    //std::cout << " |vec2 empty() =" << std::boolalpha << vc2.empty() << std::endl;
+    //for (int i = 0; i < vc2.size(); ++i) {
+    //    vc2[i] = i + 1;
+    //}
+    //std::cout << "after modify vec2 :";
+    //for (auto it : vc2) std::cout << it << " ";
+    //std::cout << "vec2.front() = " << vc2.front() << std::endl;
+    //std::cout << "vec2.back() = " << vc2.back() << std::endl;
+    //std::cout << std::endl;
+    //vector<Node> vc3(5, Node());
+    //vc3.pop_back();
+    //std::cout << "\nafter vc3 pop_back() :"; 
+    //for (auto it = vc3.begin(); it != vc3.end(); ++it) {
+    //    std::cout << *it << " ";
+    //}
+    //std::cout << std::endl;
+    //vc3.push_back(1);
+    //auto iter = vc2.begin() + 1;
+    //vc2.erase(iter);
+    //std::cout << "\nafter erase ve2 position = 1 : ";
+    //for (auto it = vc2.begin(); it != vc2.end(); ++it) {
+    //    std::cout << *it << " ";
+    //}
+    //std::cout << std::endl;
+    //std::cout << "--------------------------\n";
+    //feiger::vector<int>  v4(1, 2);
+    //for (int i = 0; i < 6; ++i) {
+    //    v4.push_back(i);
+    //} 
+    //for (auto x : v4) std::cout << x << " ";
+    //std::cout << std::endl;
+    //auto first = v4.begin();
+    //auto last = v4.begin() + 2;
+    //v4.erase(first, last); 
+    //std::cout << "erase v4 at 0 to 2 :";
+    //for (auto x : v4) std::cout << x << " ";
+    //std::cout << std::endl <<  "v4 capacity ="<<v4.capacity() << std::endl;
+    //v4.insert(v4.begin() + 2, 8, 6);
+    //
+    //std::cout << "after v4 insert 8 cnt of 6 in 2 capacity = "<<v4.capacity() << std::endl;
+    //for (auto x : v4) std::cout << x << " ";
+    //std::cout << std::endl;
 
-    std::cout << v4.size() << " capacity = " << v4.capacity() << std::endl;
-    
-    for (int i = 0; i < 6; ++i) {
-        v4.push_back(1);
-        std::cout << "now v4.capacity = " << v4.capacity() << std::endl;
-    }
+    //std::cout << v4.size() << " capacity = " << v4.capacity() << std::endl;
+    //
+    //for (int i = 0; i < 6; ++i) {
+    //    v4.push_back(1);
+    //    std::cout << "now v4.capacity = " << v4.capacity() << std::endl;
+    //}
 
-    v4.clear();
-    std::cout << "after v4 clear() : v4.size() = ";
-    std::cout << v4.size() << " capacity = " << v4.capacity() << std::endl;
+    //v4.clear();
+    //std::cout << "after v4 clear() : v4.size() = ";
+    //std::cout << v4.size() << " capacity = " << v4.capacity() << std::endl;
 
-    v4.resize(28);
-    std::cout << "after v4.reserve(28) :";
-    std::cout << v4.size() << " capacity = " << v4.capacity() << std::endl;
-    for (auto x : v4) std::cout << x << " ";
-    std::cout << std::endl;
+    //v4.resize(28);
+    //std::cout << "after v4.reserve(28) :";
+    //std::cout << v4.size() << " capacity = " << v4.capacity() << std::endl;
+    //for (auto x : v4) std::cout << x << " ";
+    //std::cout << std::endl;
 
-    //const vector<int> v5(12, 3);
+    const vector<int> v5(12, 3);
     //v5[3] = 6;
     //std::cout << "v5[3] = "<< v5[3] << std::endl;
     //for (auto x : v5) std::cout << x << " ";
     
 
+    feiger::vector<int>  v6(1, 2);
+    for (int i = 1; i < 6; ++i) {
+        v6.push_back(i);
+    } 
+    for (auto x : v6) std::cout << x << " ";
+    std::cout << std::endl;
+    
+    vector<int> v7(std::move(v6));
+    for (auto x : v7) std::cout << x << " ";
+    std::cout << std::endl;
+    
+    v7 = std::move(v5);
+    for (auto x : v7) std::cout << x << " ";
+    std::cout << std::endl;
 
     return 0;
 }
@@ -417,7 +431,7 @@ std::ostream& operator<<(std::ostream& out, const Node& b) {
 }
 
 struct CMP{
-    bool operator()(const Node& a, const Node& b) {
+    bool operator()(const Node& a, const Node& b) const {
         return a.x * a.y < b.x * b.y;
     }
 };
@@ -439,11 +453,11 @@ int main() {
     for (auto x : v1) cout << x << " ";
     cout << endl;
     
-    int x;
-    while (cin >> x) {
-        auto it = upper_bound(v1.begin(), v1.end(), x);
-        cout << x << " : upper_bound in v1 = " << *it << endl;
-    }
+    //int x;
+    //while (cin >> x) {
+    //    auto it = upper_bound(v1.begin(), v1.end(), x);
+    //    cout << x << " : upper_bound in v1 = " << *it << endl;
+    //}
     //while (cin >> x) {
     //    auto it = lower_bound(v1.begin(), v1.end(), x);
     //    cout << x << " : lower_bound in v1 = " << *it << endl;
@@ -463,20 +477,26 @@ int main() {
    // cout << "after my_sort :" << endl;
    // for (auto x : v1) cout << x << " ";
    // cout << endl;
-   // vector<Node> vec(15);
-   // int vb;
-   // for (int i = 0; i < 15; ++i) {
-   //     val = rand() % 100;
-   //     vb = rand() % 10;
-   //     vec[i] = {val, vb};
-   // }
-   // for (auto x : vec) cout << x << " ";
-   // cout << endl;
-   // sort(vec.begin(), vec.end(), CMP());
-   // cout << "after my_sort :" << endl;
-   // for (auto x : vec) cout << x << " ";
-   // cout << endl;
+    vector<Node> vec(15);
+    int vb;
+    for (int i = 0; i < 15; ++i) {
+        val = rand() % 100;
+        vb = rand() % 10;
+        vec[i] = {val, vb};
+    }
+    for (auto x : vec) cout << x << " ";
+    cout << endl;
+    sort(vec.begin(), vec.end(), CMP());
+    cout << "after my_sort :" << endl;
+    for (auto x : vec) cout << x << " ";
+    cout << endl;
 
+    int x, y;
+    while (cin >> x >> y) {
+        auto it = binary_search(vec.begin(), vec.end(), Node{x, y}, CMP());
+        cout << x << " : upper_bound in vec = " << std::boolalpha << it << endl;
+    }
+    
     return 0;
 }
 
@@ -492,10 +512,40 @@ using std::endl;
 
 int main() {
     unordered_set<int> mst1;
-    vector<int> bt;
-    bt.resize(10);
+    
     cout << mst1.rep.bucket_count() << endl;
-    cout << bt.size() << endl;
+    mst1.rep.resize(200);
+    cout << mst1.rep.bucket_count() << endl;
+    cout << "elems_count in set = " << mst1.rep.elems_count() << endl;
+    
+    //for(int i = 0; i < 15; ++i) {
+    //    mst1.rep.insert_equal(i);
+    //    mst1.rep.insert_equal(i);
+    //    cout << "elems_count in set = " << mst1.rep.elems_count() << endl;
+    //}
+    
+    for(int i = 0; i < 18; ++i) {
+        auto x = mst1.rep.insert_unique(i);
+        auto y = mst1.rep.insert_unique(i);
+        cout << "elems_count in set = " << mst1.rep.elems_count() << endl;
+        cout << "x.frsit->val =" << *x.first  << "second =" << std::boolalpha << x.second << endl;
+        cout << "y.frsit->val =" << *y.first  << "second =" << std::boolalpha << y.second << endl;
+    }
+    
+    int key;
+    while (cin >> key) {
+        auto it = mst1.rep.find(key);
+        auto cnt = mst1.rep.count(key);
+        cout << "find key int hashtable iterator->val = " << *it << endl;
+        cout << "key int hashtable count = " << cnt << endl;
+        mst1.rep.insert_equal(key);
+    }
+    
+    cout << "range in hashtable :";
+    for(auto it = mst1.rep.begin(); it != mst1.rep.end(); ++it) {
+        cout << *it << " ";
+    }
+    cout << endl;
     return 0;
 }
 

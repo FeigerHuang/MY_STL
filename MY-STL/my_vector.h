@@ -13,6 +13,7 @@
 #define LOG_VEC(msg)
 #endif
 #include "my_algobase.h"
+#include "my_algorithm.h"
 
 #define _MY_NAMESPACE_BEGIN     namespace feiger{
 #define _MY_NAMESPACE_END       }
@@ -78,11 +79,35 @@ public:
     vector(long n, const T& value){fill_initialize(n, value);}
     explicit vector(size_type n) {fill_initialize(n, T());}
     
+    vector(const vector& rhs) {
+        LOG_VEC("vector constructor call");
+        size_type n = rhs.capacity();
+        start = data_allocatetor::allocate(n);
+        int i = 0;
+        for (; i < rhs.size(); ++i) {
+            construct(start + i, rhs[i]);
+        }
+        finish = start + i;
+        end_of_storage = start + n;
+    }
+    
+    vector(vector&& rhs) noexcept 
+        :start(nullptr), finish(nullptr), end_of_storage(nullptr) 
+    {
+        LOG_VEC("vector move constructor call");
+        this->swap(rhs);
+    }
+
+    vector& operator=(vector rhs) noexcept {
+        LOG_VEC("vector move assignment operator=() call");
+        if(this == &rhs) return *this;
+        this->swap(rhs); 
+    }
+
     ~vector(){
         destroy(start, finish);
         deallocate();
     }
-    
     void clear() {erase(begin(), end());}
     void push_back(const T&);
     void pop_back();
@@ -92,8 +117,18 @@ public:
     void insert(iterator pos, size_type n, const T& x);
     void resize(size_type n, const T& x);
     void resize(size_type n);
+    
+    template<class U,class Ac> 
+    void swap(vector<U,Ac>& rhs) {
+        using feiger::swap;
+        swap(start, rhs.start);
+        swap(finish, rhs.finish);
+        swap(end_of_storage, rhs.end_of_storage);
+        return ;
+    }
 };
 
+    
 template<class T, class Alloc>
 void vector<T, Alloc>::resize(size_type n, const T& x)
 {

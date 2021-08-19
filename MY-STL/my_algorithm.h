@@ -112,7 +112,93 @@ ForwardIterator upper_bound(ForwardIterator first, ForwardIterator last, const T
     return __upper_bound(first, last, val, get_difference_type(first));
 }
 
+// lower_bound & upper_bound 的重载版本; 
+template <class ForwardIterator, class T, class Distance, class Compare>
+inline 
+ForwardIterator __lower_bound(ForwardIterator first,ForwardIterator last,
+                              const T& val, Distance *,const Compare& cmp)
+{
+    Distance len = 0;
+    len = distance(first, last);
+    Distance half;
+    ForwardIterator middle;
+
+    while (len > 0) {
+        half = len >> 1;
+        middle = first;
+        advance(middle, half);
+        
+        if (cmp(*middle ,val)) {
+            first = middle;
+            ++first;
+            len = len - half - 1;
+        } 
+        else{
+            len = half;
+        }
+    }
+    return first;
+}
+
+template <class ForwardIterator, class T, class Compare>
+inline 
+ForwardIterator lower_bound(ForwardIterator first, 
+                            ForwardIterator last,
+                            const T& val,const Compare& cmp) {
+    return __lower_bound(first, last, val, get_difference_type(first), cmp);
+}
+
+
+template <class ForwardIterator, class T, class Distance, class Compare>
+ForwardIterator __upper_bound(ForwardIterator first, ForwardIterator last,
+                             const T& val, Distance *,const Compare& cmp)
+{
+    Distance len;
+    len = distance(first, last);
+    ForwardIterator middle;
+    Distance half;
+
+    while (len > 0) {
+        half = len >> 1;
+        middle = first;
+        advance(middle, half);
+        
+        if (cmp(val, *middle)) {
+            len = half;
+        }
+        else {
+            first = middle;
+            ++first;
+            len = len - half - 1;
+        }
+    }
+    return first;
+}
+
+template <class ForwardIterator, class T, class Compare>
+inline 
+ForwardIterator upper_bound(ForwardIterator first, 
+                            ForwardIterator last, 
+                            const T& val, const Compare& cmp) {
+    return __upper_bound(first, last, val, get_difference_type(first), cmp);
+}
+
 // lower_bound & upper_bound END
+
+// binary_search 算法 BEGIN
+template <class ForwardIterator, class T>
+bool binary_search(ForwardIterator first, ForwardIterator last, const T& value) {
+    ForwardIterator i = lower_bound(first, last, value);
+    return i != last && !(value < *i);
+}
+
+template <class ForwardIterator, class T, class Compare>
+bool binary_search(ForwardIterator first, ForwardIterator last, const T& value, const Compare& cmp) {
+    ForwardIterator i = lower_bound(first, last, value, cmp);
+    return i != last && !cmp(value, *i);
+}
+
+// binary_search 算法 END;
 
 // sort 算法 BEGIN
 
