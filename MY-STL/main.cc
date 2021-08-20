@@ -513,10 +513,10 @@ using std::endl;
 int main() {
     unordered_set<int> mst1;
     
-    cout << mst1.rep.bucket_count() << endl;
-    mst1.rep.resize(200);
-    cout << mst1.rep.bucket_count() << endl;
-    cout << "elems_count in set = " << mst1.rep.elems_count() << endl;
+   // cout << mst1.rep.bucket_count() << endl;
+   // mst1.rep.resize(200);
+   // cout << mst1.rep.bucket_count() << endl;
+   // cout << "elems_count in set = " << mst1.rep.elems_count() << endl;
     
     //for(int i = 0; i < 15; ++i) {
     //    mst1.rep.insert_equal(i);
@@ -524,33 +524,166 @@ int main() {
     //    cout << "elems_count in set = " << mst1.rep.elems_count() << endl;
     //}
     
-    for(int i = 0; i < 18; ++i) {
-        auto x = mst1.rep.insert_unique(i);
-        auto y = mst1.rep.insert_unique(i);
-        cout << "elems_count in set = " << mst1.rep.elems_count() << endl;
-        cout << "x.frsit->val =" << *x.first  << "second =" << std::boolalpha << x.second << endl;
-        cout << "y.frsit->val =" << *y.first  << "second =" << std::boolalpha << y.second << endl;
+    //for(int i = 0; i < 18; ++i) {
+    //    auto x = mst1.rep.insert_unique(i);
+    //    auto y = mst1.rep.insert_unique(i);
+    //    cout << "elems_count in set = " << mst1.rep.elems_count() << endl;
+    //    cout << "x.frsit->val =" << *x.first  << "second =" << std::boolalpha << x.second << endl;
+    //    cout << "y.frsit->val =" << *y.first  << "second =" << std::boolalpha << y.second << endl;
+    //}
+    //
+    //int key;
+    //while (cin >> key) {
+    //    auto it = mst1.rep.find(key);
+    //    auto cnt = mst1.rep.count(key);
+    //    cout << "find key int hashtable iterator->val = " << *it << endl;
+    //    cout << "key int hashtable count = " << cnt << endl;
+    //    mst1.rep.insert_equal(key);
+    //}
+    
+    unordered_set<long long>  mst2;
+    cout << std::boolalpha << "mst2.empty() = "<<mst2.empty() << endl;
+    long long buf;
+    
+    for (int i = 0; i < 6; ++i) {
+        cin >> buf;
+        auto it = mst2.insert(buf);
+        cout << "insert " << buf << " to mst2 = " << it.second << endl;
     }
     
-    int key;
-    while (cin >> key) {
-        auto it = mst1.rep.find(key);
-        auto cnt = mst1.rep.count(key);
-        cout << "find key int hashtable iterator->val = " << *it << endl;
-        cout << "key int hashtable count = " << cnt << endl;
-        mst1.rep.insert_equal(key);
+    for (int i = 0; i < 1; ++i) {
+        cin >> buf;
+        auto it = mst2.find(buf);
+        if (it == mst2.end()) {
+            cout << buf << " no find!" << endl;
+        } else{
+            cout << "find " << buf << " in mst2" << endl;
+        }
+        cout << "mst2.count() = " << mst2.count(buf) << endl;
     }
-    
+
     cout << "range in hashtable :";
-    for(auto it = mst1.rep.begin(); it != mst1.rep.end(); ++it) {
+    for(auto it = mst2.begin(); it != mst2.end(); ++it) {
         cout << *it << " ";
     }
     cout << endl;
+    
+   // unordered_set<long long> mst3;
+   // mst2.swap(mst3);
+   // cout << "range in hashtable mst3:";
+   // for(auto it = mst3.begin(); it != mst3.end(); ++it) {
+   //     cout << *it << " ";
+   // }
+   // cout << endl;
+
+   // for (int i = 0; i < 3; ++i) {
+   //     cin >> buf;
+   //     mst3.erase(buf);
+   //     cout << "after erase element from mst3 :";
+   //     for(auto it = mst3.begin(); it != mst3.end(); ++it) {
+   //         cout << *it << " ";
+   //     }
+   //     cout << endl;
+   // }
+   // 
+   // for (int i = 0; i < 3; ++i) {
+   //     auto first = mst3.begin();
+   //     mst3.erase(first);
+   //     cout << "after erase first element from mst3 :";
+   //     for(auto it = mst3.begin(); it != mst3.end(); ++it) {
+   //         cout << *it << " ";
+   //     }
+   //     cout << endl;
+   // }
+   // 
+   // mst2.rep.clear();
+   // mst2.rep.copy_from(mst3.rep);
+   // cout << "range in hashtable mst2:";
+   // for(auto it = mst2.begin(); it != mst2.end(); ++it) {
+   //     cout << *it << " ";
+   // }
+   // cout << endl;
+
     return 0;
 }
 
 
 END(hash_test)
+
+
+BEGIN(set_test)
+
+using std::cin;
+using std::cout;
+using std::endl;
+
+int main() {
+
+    unordered_mulitset<int> st1;
+    
+    int val;
+    cout << "please insert 8 elements to set : \n";
+    for (int i = 0; i < 8; ++i) {
+        cin >> val;
+        st1.insert(val);
+    }
+    cout << "range in hashtable st1:";
+    for(auto it = st1.begin(); it != st1.end(); ++it) {
+        cout << *it << " ";
+    }
+    cout << endl;
+    cout << "please cin 3 elems that you want to find : \n";
+    for (int i =  0; i < 3; ++i) {
+        cin >> val;
+        if (st1.find(val) != st1.end()) {
+            cout << "element in set and the amount = ";
+            cout << st1.count(val) <<  " .\n";
+        } else {
+            cout << "can not find\n";
+        }
+    }
+    cout << "please cin 5 elements that you want to erase : \n";
+    for (int i = 0; i < 5; ++i) {
+        cin >> val;
+        st1.erase(val);
+        cout << "now the size() of the set = " << st1.size() << endl;
+        cout << "now the bucket_count = " << st1.bucket_count() << endl;
+    }
+
+    return 0;
+}
+
+END(set_test)
+
+#include "my_unordered_map.h"
+
+BEGIN(map_test)
+
+using std::cin;
+using std::cout;
+using std::endl;
+
+int main() {
+
+    unordered_map<int, char> mp1;
+    cout << "mp1.size() = " << mp1.size() << endl;
+    cout << "mp1.Max_size() = " << mp1.max_size() << endl;
+    cout << "mp1.empty() = " << std::boolalpha<< mp1.empty() << endl;
+    
+    for (int i =  0; i < 9; ++i) {
+        mp1.insert(make_pair<int, char>(i, 'a' + i));
+    }
+    auto result = mp1.insert(make_pair<int, char>(0, 'x'));
+    cout << result.second << endl;
+    cout << "key:"<< result.first->first << "=" << result.first->second << endl;
+    for(auto it = mp1.begin(); it != mp1.end(); ++it){
+        cout << "pair(" << it->first << "," << it->second << ")" << endl;
+    }
+
+    return 0;
+}
+
+END(map_test)
 
 int main() {
     //allocator_test::main();
@@ -561,7 +694,10 @@ int main() {
     //func_test::main();
     //funp_test::main();
     //algori_test::main();
-    hash_test::main();
+    //hash_test::main();
+    //set_test::main();
+    map_test::main();
+
 
     return 0;
 }

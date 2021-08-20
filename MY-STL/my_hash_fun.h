@@ -46,7 +46,15 @@ struct hash<const char *>
 template<>
 struct hash<char>
 {
-    size_t operator()(const char x) const {
+    size_t operator()(char x) const {
+        return x;
+    }  
+};
+
+template<>
+struct hash<const char>
+{
+    size_t operator()(char x) const {
         return x;
     }  
 };
@@ -92,13 +100,44 @@ struct hash<long>
 };
 
 template<>
-struct hash<long long>
+struct hash<long long int>
 {
-    size_t operator()(long long x) const {
+    size_t operator()(long long int x) const {
         return x;
     }  
 };
 
+template<>
+struct hash<const short>
+{
+    size_t operator()(short x) const {
+        return x;
+    }  
+};
+
+template<>
+struct hash<const int>
+{
+    size_t operator()(int x) const {
+        return x;
+    }  
+};
+
+template<>
+struct hash<const long>
+{
+    size_t operator()(long x) const {
+        return x;
+    }  
+};
+
+template<>
+struct hash<const long long int>
+{
+    size_t operator()(long long int x) const {
+        return x;
+    }  
+};
 _MY_NAMESPACE_END 
 
 #endif

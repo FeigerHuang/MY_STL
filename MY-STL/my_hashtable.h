@@ -158,7 +158,9 @@ public:
     
     friend struct 
     __hash_iterator<Value, Key, HashFcn, ExtractKey, EqualKey>;
-
+    
+    hasher hash_funct() const {return this->hash;}
+    key_equal key_eq() const {return this->equals;}
 public:
     hashtable(size_type n, const HashFcn& hf,
             const EqualKey& eql, const ExtractKey& ext)
@@ -166,13 +168,12 @@ public:
     {
         initialize_buckets(n);
     }
-    size_type elems_count() {return num_elements;}
     hashtable(size_type n, const HashFcn& hf, const EqualKey& eql)
         : hash(hf), equals(eql),get_key(ExtractKey()) , num_elements(0)
     {
         initialize_buckets(n);
     }
-    
+    ~hashtable() {clear();} 
     iterator begin() {
         // 找到第一个存在元素的槽;
         for (size_type index = 0; index < buckets.size(); ++index) {
@@ -186,12 +187,27 @@ public:
     iterator end() {
         return iterator(0, this);
     }
-
+    
+    void swap(hashtable& rhs) {
+        buckets.swap(rhs.buckets);
+        feiger::swap(this->hash, rhs.hash);
+        feiger::swap(this->equals, rhs.equals);
+        feiger::swap(this->num_elements, rhs.num_elements);
+        return;
+    }
+    bool empty() const {return num_elements == 0;} 
+    size_type max_size() const {return size_type(-1);}
+    size_type elems_count() const {return num_elements;}
     size_type bucket_count() const {return buckets.size();}
+    size_type max_bucket_count() const {
+        return __prime_list[(int)__num_primes - 1];
+    }
     // 用于新建节点;
     node *new_node(const value_type& obj) {
         node *x = node_allocator::allocate();
         construct(&x->val, obj);
+        // 这里要小心next的初值未知;
+        x->next = nullptr;
         return x;
     }
     // 用于销毁节点;
@@ -207,6 +223,10 @@ public:
     pair<iterator, bool> insert_unique_noresize(const value_type& obj);
     iterator find(const key_type& obj);
     size_type count(const key_type& obj);
+    size_type erase(const key_type& obj);
+    void erase(const iterator& it);
+    void copy_from(const hashtable& rhs);
+    void clear();
 private:
     // 获得下一个质数大小的空间
     size_type next_size(size_type n) {
@@ -220,16 +240,16 @@ private:
         num_elements = 0;
     }
     
-    size_type bkt_num_key(const value_type& key, size_t n) const {
+    size_type bkt_num_key(const key_type& key,size_t n) const {
         return hash(key) % n;
     }
 
-    size_type bkt_num_key(const value_type& key) const {
+    size_type bkt_num_key(const key_type& key) const {
         return bkt_num_key(key, buckets.size());
     }
     
     size_type bkt_num(const value_type& obj) const {
-        return bkt_num_key(obj);
+        return bkt_num_key(get_key(obj));
     }
 
     size_type bkt_num(const value_type& obj, size_t n) const {
@@ -237,8 +257,119 @@ private:
     }
 };
 
-// 查找元素;
 
+//拷贝hashtable
+template<class Value, class Key, class HashFcn,
+            class ExtractKey, class EqualKey>
+void hashtable<Value, Key, HashFcn, ExtractKey, EqualKey>::copy_from(const hashtable& rhs)
+{
+    clear();
+    buckets.resize(rhs.buckets.size(), (node *)0);
+    
+    for (int i = 0; i < rhs.buckets.size(); ++i)
+    {
+        if(rhs.buckets[i] != nullptr)
+        {
+            const node *cur = rhs.buckets[i];
+            node *copy = new_node(cur->val);
+            buckets[i] = copy;
+            node *next_node = cur->next;
+            while (next_node != nullptr) {
+                copy->next = new_node(next_node->val);
+                next_node = next_node;
+                copy = copy->next;
+            }
+        }
+    }
+    num_elements = rhs.num_elements;
+}
+
+
+
+// 清空buckets 及其节点;
+template<class Value, class Key, class HashFcn,
+            class ExtractKey, class EqualKey>
+void hashtable<Value, Key, HashFcn, ExtractKey, EqualKey>::clear() {
+    for (int i = 0; i < buckets.size(); ++i) {
+        node *cur = buckets[i];
+        while (cur) {
+            node *next_node = cur->next;
+            delete_node(cur);
+            cur = next_node;
+        }
+        buckets[i] = nullptr;
+    }   
+    num_elements = 0;
+    return;
+}
+
+
+// 删除元素;
+template<class Value, class Key, class HashFcn,
+            class ExtractKey, class EqualKey>
+typename hashtable<Value, Key, HashFcn, ExtractKey, EqualKey>::size_type 
+hashtable<Value, Key, HashFcn, ExtractKey, EqualKey>::erase(const Key& obj) {
+    size_type result = 0;
+    const size_type index = bkt_num(obj);
+    node *first = buckets[index];
+    if (first == nullptr) return result;
+    // 找到与键值相同的元素并删除;
+    node *cur = first;
+    node *next_node = cur->next;
+
+    while (next_node)
+    {
+        if (equals(get_key(next_node->val), obj)) {
+            cur->next = next_node->next;
+            delete_node(next_node);
+            ++result;
+            --num_elements;
+            next_node = cur->next;
+        } else{
+            cur = next_node;
+            next_node = cur->next;
+        }
+    }
+    // 最后特殊判断槽位;  
+    if (equals(get_key(first->val), obj)) {
+        buckets[index] = first->next;
+        delete_node(first);
+        ++result;
+        --num_elements;
+    }
+    return result;
+}
+    
+template<class Value, class Key, class HashFcn,
+            class ExtractKey, class EqualKey>
+void hashtable<Value, Key, HashFcn, ExtractKey, EqualKey>::erase(const iterator& it) {
+    node *cur = it.cur;
+    if (cur == nullptr) return;
+    const size_type index = bkt_num(cur->val);
+    node *first = buckets[index];
+
+    // 当删除节点是槽节点时;
+    if (cur == first) {
+        buckets[index] = first->next;
+        delete_node(first);
+        --num_elements;
+    }
+    else{
+        for(node *next_node = first->next; next_node ; next_node = first->next) {
+            if (next_node == cur) {
+                first->next = next_node->next;
+                delete_node(next_node);
+                --num_elements;
+                break;
+            }
+            else first = next_node;
+        }
+    }
+
+}
+
+
+// 查找元素;
 template<class Value, class Key, class HashFcn,
             class ExtractKey, class EqualKey>
 typename hashtable<Value, Key, HashFcn, ExtractKey, EqualKey>::iterator 
@@ -256,8 +387,7 @@ hashtable<Value, Key, HashFcn, ExtractKey, EqualKey>::find(const Key& x) {
 template<class Value, class Key, class HashFcn,
             class ExtractKey, class EqualKey>
 typename hashtable<Value, Key, HashFcn, ExtractKey, EqualKey>::size_type 
-hashtable<Value, Key, HashFcn, ExtractKey, EqualKey>::count(const Key& x) 
-{
+hashtable<Value, Key, HashFcn, ExtractKey, EqualKey>::count(const Key& x) {
     const size_type index = bkt_num(x);
     size_type ans = 0;
     node *first = buckets[index];
