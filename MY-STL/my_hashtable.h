@@ -224,6 +224,7 @@ public:
     iterator find(const key_type& obj);
     size_type count(const key_type& obj);
     size_type erase(const key_type& obj);
+    reference find_or_insert(const value_type& obj);
     void erase(const iterator& it);
     void copy_from(const hashtable& rhs);
     void clear();
@@ -257,6 +258,28 @@ private:
     }
 };
 
+//找一找, 找不到就插入;
+template<class Value, class Key, class HashFcn,
+            class ExtractKey, class EqualKey>
+typename hashtable<Value, Key, HashFcn, ExtractKey, EqualKey>::reference
+hashtable<Value, Key, HashFcn, ExtractKey, EqualKey>::find_or_insert(const value_type& obj) 
+{
+    resize(num_elements + 1);
+    const size_type index = bkt_num(obj);
+    node *first = buckets[index];
+    // 找到节点返回引用
+    for (node *cur = first; cur; cur = cur->next){
+        if (equals(get_key(cur->val), get_key(obj)) ) {
+            return cur->val;
+        }
+    }
+    //不存在节点, 插入一个;
+    node *tmp = new_node(obj);
+    tmp->next = first;
+    buckets[index] = tmp;
+    ++num_elements;
+    return tmp->val;
+}
 
 //拷贝hashtable
 template<class Value, class Key, class HashFcn,
@@ -308,9 +331,9 @@ void hashtable<Value, Key, HashFcn, ExtractKey, EqualKey>::clear() {
 template<class Value, class Key, class HashFcn,
             class ExtractKey, class EqualKey>
 typename hashtable<Value, Key, HashFcn, ExtractKey, EqualKey>::size_type 
-hashtable<Value, Key, HashFcn, ExtractKey, EqualKey>::erase(const Key& obj) {
+hashtable<Value, Key, HashFcn, ExtractKey, EqualKey>::erase(const key_type& obj) {
     size_type result = 0;
-    const size_type index = bkt_num(obj);
+    const size_type index = bkt_num_key(obj);
     node *first = buckets[index];
     if (first == nullptr) return result;
     // 找到与键值相同的元素并删除;
@@ -373,8 +396,8 @@ void hashtable<Value, Key, HashFcn, ExtractKey, EqualKey>::erase(const iterator&
 template<class Value, class Key, class HashFcn,
             class ExtractKey, class EqualKey>
 typename hashtable<Value, Key, HashFcn, ExtractKey, EqualKey>::iterator 
-hashtable<Value, Key, HashFcn, ExtractKey, EqualKey>::find(const Key& x) {
-    const size_type index = bkt_num(x);
+hashtable<Value, Key, HashFcn, ExtractKey, EqualKey>::find(const key_type& x) {
+    const size_type index = bkt_num_key(x);
     node* first = buckets[index];
 
     while (first && !equals(get_key(first->val), x)) {
@@ -387,8 +410,8 @@ hashtable<Value, Key, HashFcn, ExtractKey, EqualKey>::find(const Key& x) {
 template<class Value, class Key, class HashFcn,
             class ExtractKey, class EqualKey>
 typename hashtable<Value, Key, HashFcn, ExtractKey, EqualKey>::size_type 
-hashtable<Value, Key, HashFcn, ExtractKey, EqualKey>::count(const Key& x) {
-    const size_type index = bkt_num(x);
+hashtable<Value, Key, HashFcn, ExtractKey, EqualKey>::count(const key_type& x) {
+    const size_type index = bkt_num_key(x);
     size_type ans = 0;
     node *first = buckets[index];
 

@@ -157,6 +157,7 @@ public:
 
 public:
   size_type size() const { return _M_ht.size(); }
+/insert
   size_type max_size() const { return _M_ht.max_size(); }
   bool empty() const { return _M_ht.empty(); }
   void swap(hash_set& __hs) { _M_ht.swap(__hs._M_ht); }

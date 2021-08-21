@@ -679,11 +679,95 @@ int main() {
     for(auto it = mp1.begin(); it != mp1.end(); ++it){
         cout << "pair(" << it->first << "," << it->second << ")" << endl;
     }
+    int p;
+    for (int i = 0; i < 3; ++i) {
+        cout << "please input what you want to find : ";
+        cin >> p;
+        if (mp1.find(p) != mp1.end()) {
+            cout << "element in map1 ," ;
+            cout << "elems_count = " << mp1.count(p) << endl;
+        } else{
+            cout << "not find element\n";
+        }
+    }
+    for (int i = 0; i < 3; ++i) {
+        cout << "please input what you want to erase : ";
+        cin >> p;
+        mp1.erase(p);
+        for(auto it = mp1.begin(); it != mp1.end(); ++it){
+            cout << "pair(" << it->first << "," << it->second << ")" << endl;
+        }
+    }
+    cout << mp1.size() << endl;
+    cout << mp1[100] << endl;
+    cout << mp1.size() << endl;
+    mp1[0] = 'x';
+    mp1[1] = 'y';
+    for(auto it = mp1.begin(); it != mp1.end(); ++it){
+        cout << "pair(" << it->first << "," << it->second << ")" << endl;
+    }
 
     return 0;
 }
 
 END(map_test)
+
+BEGIN(multimap_test)
+
+using std::cin;
+using std::cout;
+using std::endl;
+
+int main() {
+
+    unordered_mulitmap<int, char> mp1;
+    cout << "mp1.size() = " << mp1.size() << endl;
+    cout << "mp1.Max_size() = " << mp1.max_size() << endl;
+    cout << "mp1.empty() = " << std::boolalpha<< mp1.empty() << endl;
+    
+    for (int i =  0; i < 9; ++i) {
+        mp1.insert(make_pair<int, char>(i, 'a' + i));
+    }
+    auto result = mp1.insert(make_pair<int, char>(0, 'x'));
+    cout << result->first << endl;
+    for(auto it = mp1.begin(); it != mp1.end(); ++it){
+        cout << "pair(" << it->first << "," << it->second << ")" << endl;
+    }
+    pair<int, char> pii;
+    for (int i = 0; i < 3; ++i) {
+        cout << "please input what you want to insert  pair<int,char> :";
+        cin >> pii.first >> pii.second;
+        mp1.insert(pii);
+    }
+    int p;
+    for (int i = 0; i < 3; ++i) {
+        cout << "please input what you want to find : ";
+        cin >> p;
+        if (mp1.find(p) != mp1.end()) {
+            cout << "element in map1 ," ;
+            cout << "elems_count = " << mp1.count(p) << endl;
+        } else{
+            cout << "not find element\n";
+        }
+    }
+    for (int i = 0; i < 3; ++i) {
+        cout << "please input what you want to erase : ";
+        cin >> p;
+        mp1.erase(p);
+        for(auto it = mp1.begin(); it != mp1.end(); ++it){
+            cout << "pair(" << it->first << "," << it->second << ")" << endl;
+        }
+    }
+    
+    for(auto it = mp1.begin(); it != mp1.end(); ++it){
+        cout << "pair(" << it->first << "," << it->second << ")" << endl;
+    }
+
+    return 0;
+}
+
+END(multimap_test)
+
 
 int main() {
     //allocator_test::main();
@@ -696,8 +780,8 @@ int main() {
     //algori_test::main();
     //hash_test::main();
     //set_test::main();
-    map_test::main();
-
+    //map_test::main();
+    multimap_test::main();
 
     return 0;
 }

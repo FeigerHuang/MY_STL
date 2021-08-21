@@ -77,7 +77,7 @@ struct _Hashtable_iterator {
   typedef _Hashtable_const_iterator<_Val, _Key, _HashFcn, 
                                     _ExtractKey, _EqualKey, _Alloc>
           const_iterator;
-  typedef _Hashtable_node<_Val> _Node;
+  typedef _Hashtable_node<_Val> _Node;  // 迭代器所指元素为 Node;
 
   typedef forward_iterator_tag iterator_category;
   typedef _Val value_type;
@@ -86,17 +86,20 @@ struct _Hashtable_iterator {
   typedef _Val& reference;
   typedef _Val* pointer;
 
-  _Node* _M_cur;
-  _Hashtable* _M_ht;
+  _Node* _M_cur;         // 迭代器存放所指Node指针;
+  _Hashtable* _M_ht;      // 以及 指向hashtable的指针;
 
+    //构造函数传入 所指节点指针和hashtable指针;
   _Hashtable_iterator(_Node* __n, _Hashtable* __tab) 
     : _M_cur(__n), _M_ht(__tab) {}
   _Hashtable_iterator() {}
+    //解引用运算访问node里存的Val
   reference operator*() const { return _M_cur->_M_val; }
 #ifndef __SGI_STL_NO_ARROW_OPERATOR
+    //箭头运算访问Val的地址;
   pointer operator->() const { return &(operator*()); }
 #endif /* __SGI_STL_NO_ARROW_OPERATOR */
-  iterator& operator++();
+  iterator& operator++();  // 这里为了实现++ 所有前面有hashtable的指针;
   iterator operator++(int);
   bool operator==(const iterator& __it) const
     { return _M_cur == __it._M_cur; }
@@ -186,6 +189,7 @@ bool operator==(const hashtable<_Val,_Key,_HF,_Ex,_Eq,_All>& __ht1,
 //  Additionally, a base class wouldn't serve any other purposes; it 
 //  wouldn't, for example, simplify the exception-handling code.
 
+//利用6个模板参数,泛化: 值, 键, 哈希函数, 提起键, 比较键, 空间配置器
 template <class _Val, class _Key, class _HashFcn,
           class _ExtractKey, class _EqualKey, class _Alloc>
 class hashtable {
@@ -205,7 +209,7 @@ public:
   hasher hash_funct() const { return _M_hash; }
   key_equal key_eq() const { return _M_equals; }
 
-private:      // Node里面有next指针和存放的val值;
+private:      // 定义Node和迭起器里的定义做到一致;
   typedef _Hashtable_node<_Val> _Node;
 
 #ifdef __STL_USE_STD_ALLOCATORS
@@ -214,6 +218,7 @@ public:
   allocator_type get_allocator() const { return _M_node_allocator; }
 private:
   typename _Alloc_traits<_Node, _Alloc>::allocator_type _M_node_allocator;
+    // 分别用来构造和销毁Node;
   _Node* _M_get_node() { return _M_node_allocator.allocate(1); }
   void _M_put_node(_Node* __p) { _M_node_allocator.deallocate(__p, 1); }
 # define __HASH_ALLOC_INIT(__a) _M_node_allocator(__a), 
@@ -289,7 +294,7 @@ public:
   }
 
 #undef __HASH_ALLOC_INIT
-
+    // 赋值运算符;
   hashtable& operator= (const hashtable& __ht)
   {
     if (&__ht != this) {
@@ -303,7 +308,7 @@ public:
   }
 
   ~hashtable() { clear(); }
-
+                // _M_num_elements 用来记录元素数量;
   size_type size() const { return _M_num_elements; }
   size_type max_size() const { return size_type(-1); }
   bool empty() const { return size() == 0; }
@@ -348,14 +353,14 @@ public:
 #endif /* __STL_MEMBER_TEMPLATES */
 
 public:
-
+        // _M_buckets是vector<Node*>;
   size_type bucket_count() const { return _M_buckets.size(); }
 
   size_type max_bucket_count() const
     { return __stl_prime_list[(int)__stl_num_primes - 1]; } 
 
   size_type elems_in_bucket(size_type __bucket) const
-  {
+  {    // 计算vector有多少卡槽被占用了;
     size_type __result = 0;
     for (_Node* __cur = _M_buckets[__bucket]; __cur; __cur = __cur->_M_next)
       __result += 1;
@@ -363,7 +368,7 @@ public:
   }
 
   pair<iterator, bool> insert_unique(const value_type& __obj)
-  {
+  { // 先检查是否需要扩容, 然后调用不可重复的插入;
     resize(_M_num_elements + 1);
     return insert_unique_noresize(__obj);
   }
@@ -465,15 +470,17 @@ public:
 #endif /*__STL_MEMBER_TEMPLATES */
 
   reference find_or_insert(const value_type& __obj);
-
+    
+    // 通过键返回迭代器(内含node *cur->(*next, val));
   iterator find(const key_type& __key) 
   {
+      // 首先通过hash函数定义卡槽;
     size_type __n = _M_bkt_num_key(__key);
     _Node* __first;
-    for ( __first = _M_buckets[__n];
+    for ( __first = _M_buckets[__n];   // 提取key(node*->val) , 与 __key做比较;
           __first && !_M_equals(_M_get_key(__first->_M_val), __key);
           __first = __first->_M_next)
-      {}
+      {}      // __first找到了, 或者为nullptr
     return iterator(__first, this);
   } 
 
@@ -534,12 +541,12 @@ private:
   }
 
   size_type _M_bkt_num(const value_type& __obj) const
-  {
+  {         // 通过get_key 取得key, 
     return _M_bkt_num_key(_M_get_key(__obj));
   }
 
   size_type _M_bkt_num_key(const key_type& __key, size_t __n) const
-  {
+  {         // hash(key)-> 哈希值 % n;
     return _M_hash(__key) % __n;
   }
 
@@ -758,19 +765,20 @@ hashtable<_Val,_Key,_HF,_Ex,_Eq,_All>
   return iterator(__tmp, this);
 }
 
+// 如果没找到就插入元素;
 template <class _Val, class _Key, class _HF, class _Ex, class _Eq, class _All>
 typename hashtable<_Val,_Key,_HF,_Ex,_Eq,_All>::reference 
 hashtable<_Val,_Key,_HF,_Ex,_Eq,_All>::find_or_insert(const value_type& __obj)
-{
+{ // 先进行安全检查;
   resize(_M_num_elements + 1);
-
+    // 计算出 正确坐标;
   size_type __n = _M_bkt_num(__obj);
   _Node* __first = _M_buckets[__n];
-
+    // 遍历该卡槽上的链表;
   for (_Node* __cur = __first; __cur; __cur = __cur->_M_next)
     if (_M_equals(_M_get_key(__cur->_M_val), _M_get_key(__obj)))
-      return __cur->_M_val;
-
+      return __cur->_M_val;   // 当发现当前值存在,返回已存在值的引用;
+    // 否则插入卡槽首位,返回;
   _Node* __tmp = _M_new_node(__obj);
   __tmp->_M_next = __first;
   _M_buckets[__n] = __tmp;
@@ -778,26 +786,28 @@ hashtable<_Val,_Key,_HF,_Ex,_Eq,_All>::find_or_insert(const value_type& __obj)
   return __tmp->_M_val;
 }
 
+// equal_range 返回该键元素的 起 与止
 template <class _Val, class _Key, class _HF, class _Ex, class _Eq, class _All>
 pair<typename hashtable<_Val,_Key,_HF,_Ex,_Eq,_All>::iterator,
      typename hashtable<_Val,_Key,_HF,_Ex,_Eq,_All>::iterator> 
 hashtable<_Val,_Key,_HF,_Ex,_Eq,_All>::equal_range(const key_type& __key)
 {
+    // 计算出元素的槽位
   typedef pair<iterator, iterator> _Pii;
   const size_type __n = _M_bkt_num_key(__key);
 
   for (_Node* __first = _M_buckets[__n]; __first; __first = __first->_M_next)
-    if (_M_equals(_M_get_key(__first->_M_val), __key)) {
+    if (_M_equals(_M_get_key(__first->_M_val), __key)) { // 找到起 位
       for (_Node* __cur = __first->_M_next; __cur; __cur = __cur->_M_next)
-        if (!_M_equals(_M_get_key(__cur->_M_val), __key))
+        if (!_M_equals(_M_get_key(__cur->_M_val), __key)) // 找到 止位
           return _Pii(iterator(__first, this), iterator(__cur, this));
       for (size_type __m = __n + 1; __m < _M_buckets.size(); ++__m)
-        if (_M_buckets[__m])
+        if (_M_buckets[__m])   //如果该卡槽链表后面都等于 __key
           return _Pii(iterator(__first, this),
                      iterator(_M_buckets[__m], this));
-      return _Pii(iterator(__first, this), end());
+      return _Pii(iterator(__first, this), end()); // 该卡槽链表后面都等于 __key且已是最后;
     }
-  return _Pii(end(), end());
+  return _Pii(end(), end()); // 没有发现;
 }
 
 template <class _Val, class _Key, class _HF, class _Ex, class _Eq, class _All>

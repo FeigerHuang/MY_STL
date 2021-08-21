@@ -92,6 +92,9 @@ public:
     size_type max_bucket_count() {
         return rep.max_bucket_count();
     }
+    void resize(size_type n) {
+        rep.resize(n);
+    }
 };
 
 
@@ -163,6 +166,10 @@ public:
         return;
     }
     void clear() { rep.clear();}
+    
+    void resize(size_type n) {
+        rep.resize(n);
+    }
 
     size_type bucket_count() {
         return rep.bucket_count();
