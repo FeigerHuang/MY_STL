@@ -784,6 +784,129 @@ int main() {
 
 END(multimap_test)
 
+#include "my_numeric.h"
+
+BEGIN(numeric_test)
+
+using std::cin;
+using std::cout;
+using std::endl;
+
+int main() {
+    vector<int>  vec;
+    for (int i = 1; i <= 9; ++ i) {
+        vec.push_back(i);
+    }
+    
+    for (auto x : vec) cout << x  << " ";
+    cout << endl;
+
+    int result = 0;
+    result = accumulate(vec.begin(), vec.end(), 0);
+    cout << "accumulate(vec, +) = " << result << endl;
+    
+    result = accumulate(vec.begin(), vec.begin() + 5, 1, multiplies<int>());
+    cout << "accumulate( 0, 5, *) = " << result << endl;
+    
+    vector<int>  ans(15, 0);
+    adjacent_different(vec.begin(), vec.end(), ans.begin());
+    cout << "adjacent_different(vec, -) = ";
+    for (auto x : ans) cout << x  << " ";
+    cout << endl;
+    
+    adjacent_different(vec.begin(), vec.end(), ans.begin(), plus<int>());
+    cout << "adjacent_different(vec, +) = ";
+    for (auto x : ans) cout << x  << " ";
+    cout << endl;
+    
+    result = inner_product(vec.begin(), vec.begin() + 5, vec.begin(), 0);
+    cout << "inner_product(vec[1,5], *) = " << result << endl;
+    
+    result = inner_product(vec.begin(), vec.begin() + 5, ans.begin(), 0, plus<int>(), plus<int>());
+    cout << "inner_product(vec[1, 5], ans[1, 5], +, +) = " << result << endl;
+    
+    partial_sum(vec.begin(), vec.end(), ans.begin());
+    cout << "partial_sum(vec, +) = ";
+    for (auto x : ans) cout << x  << " ";
+    cout << endl;
+
+    partial_sum(vec.begin(), vec.end(), ans.begin(), minus<int>());
+    cout << "partial_sum(vec, -) = ";
+    for (auto x : ans) cout << x  << " ";
+    cout << endl;
+
+    return 0;
+}
+
+END(numeric_test)
+
+#include "my_heap.h"
+BEGIN(heap_test)
+
+using std::cin;
+using std::cout;
+using std::endl;
+
+int main() {
+    vector<int>  vc;
+    
+    auto output = [](vector<int>& vc){
+        for (auto i : vc) cout << i << " ";
+        cout << endl;
+    };
+
+    int t = 0;
+   //for (int i = 0; i < 15; ++i) {
+   //    cin >> t;
+   //    vc.push_back(t);
+   //    push_heap(vc.begin(), vc.end());
+   //    output(vc);
+   //}
+   //sort_heap(vc.begin(), vc.end());
+   //output(vc);
+   //for (int i = 0; i < 15; ++i) {
+   //    int t =vc[0];
+   //    cout << "heap top = " << t << ", after heap pop :\n";
+   //    pop_heap(vc.begin(), vc.end());
+   //    vc.pop_back();
+   //    output(vc);
+   //}
+    
+   // vector<int> vc2;
+   // for (int i = 0; i < 10; ++i) {
+   //     cin >> t;
+   //     vc2.push_back(t);
+   // }
+   // output(vc2);
+   // cout << "after map heap :\n";
+   // make_heap(vc2.begin(), vc2.end());
+   // output(vc2);
+    for (int i = 0; i < 10; ++i) {
+       cin >> t;
+       vc.push_back(t);
+       //push_heap(vc.begin(), vc.end(), [](int a, int b){return a > b;});
+       //output(vc);
+    }
+   // for (int i = 0; i < 10; ++i) {
+   //    int t =vc[0];
+   //    cout << "heap top = " << t << ", after heap pop :\n";
+   //    pop_heap(vc.begin(), vc.end(), [](int a, int b){return a > b;});
+   //    vc.pop_back();
+   //    output(vc);
+   // }
+    auto cmp = [](int a, int b) {return a > b;};
+    output(vc);
+    make_heap(vc.begin(), vc.end(), cmp);
+    cout << "after make_heap :\n";
+    output(vc);
+    sort_heap(vc.begin(), vc.end(), cmp);
+    cout << "after sort_heap :\n";
+    output(vc);
+
+    return 0;
+}
+
+END(heap_test)
 
 int main() {
     //allocator_test::main();
@@ -797,7 +920,9 @@ int main() {
     //hash_test::main();
     //set_test::main();
     //map_test::main();
-    multimap_test::main();
+    //multimap_test::main();
+    //numeric_test::main();
+    heap_test::main();    
 
     return 0;
 }
