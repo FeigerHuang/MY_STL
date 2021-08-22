@@ -78,6 +78,10 @@ public:
     iterator find(const key_type& key) {
         return rep.find(key);
     }
+    
+    pair<iterator, iterator> equal_range(const key_type& key) {
+        return rep.equal_range(key);
+    }
 
     size_type count(const key_type& key) {
         return rep.count(key);
@@ -101,6 +105,10 @@ public:
     }
     size_type max_bucket_count() {
         return rep.max_bucket_count();
+    }
+    
+    size_type elems_in_bucket(size_type n){
+        return rep.elems_in_bucket(n);
     }
 };
 
@@ -164,6 +172,10 @@ public:
     iterator find(const key_type& key) {
         return rep.find(key);
     }
+    
+    pair<iterator, iterator> equal_range(const key_type& key) {
+        return rep.equal_range(key);
+    }
 
     size_type count(const key_type& key) {
         return rep.count(key);
@@ -187,6 +199,10 @@ public:
     }
     size_type max_bucket_count() {
         return rep.max_bucket_count();
+    }
+    
+    size_type elems_in_bucket(size_type n){
+        return rep.elems_in_bucket(n);
     }
 };
 

@@ -125,7 +125,7 @@ struct _Hashtable_const_iterator {
   typedef _Val value_type;
   typedef ptrdiff_t difference_type;
   typedef size_t size_type;
-  // 加上了 const 关键字; 
+  // 和普通迭代器的区别这儿加上了 const 关键字; 
   typedef const _Val& reference;
   typedef const _Val* pointer;
 
@@ -394,7 +394,7 @@ public:
   {
     insert_equal(__f, __l, __ITERATOR_CATEGORY(__f));
   }
-
+    // 当迭代器类型是input_iterator类型时;
   template <class _InputIterator>
   void insert_unique(_InputIterator __f, _InputIterator __l,
                      input_iterator_tag)
@@ -414,7 +414,7 @@ public:
   template <class _ForwardIterator>
   void insert_unique(_ForwardIterator __f, _ForwardIterator __l,
                      forward_iterator_tag)
-  {
+  { // 先检查是否需要扩容 ,然后调用 insert_unique_noresize;
     size_type __n = 0;
     distance(__f, __l, __n);
     resize(_M_num_elements + __n);
@@ -474,7 +474,7 @@ public:
     // 通过键返回迭代器(内含node *cur->(*next, val));
   iterator find(const key_type& __key) 
   {
-      // 首先通过hash函数定义卡槽;
+      // 首先通过hash函数计算key定义卡槽;
     size_type __n = _M_bkt_num_key(__key);
     _Node* __first;
     for ( __first = _M_buckets[__n];   // 提取key(node*->val) , 与 __key做比较;
@@ -725,11 +725,11 @@ pair<typename hashtable<_Val,_Key,_HF,_Ex,_Eq,_All>::iterator, bool>
 hashtable<_Val,_Key,_HF,_Ex,_Eq,_All>
   ::insert_unique_noresize(const value_type& __obj)
 {
-  const size_type __n = _M_bkt_num(__obj);
+  const size_type __n = _M_bkt_num(__obj); // 根据 val提取出key计算出坐标;
   _Node* __first = _M_buckets[__n];
 
-  for (_Node* __cur = __first; __cur; __cur = __cur->_M_next) 
-    if (_M_equals(_M_get_key(__cur->_M_val), _M_get_key(__obj)))
+  for (_Node* __cur = __first; __cur; __cur = __cur->_M_next)       
+    if (_M_equals(_M_get_key(__cur->_M_val), _M_get_key(__obj)))    // get_key 完成提取key
       return pair<iterator, bool>(iterator(__cur, this), false);
 
   _Node* __tmp = _M_new_node(__obj);
@@ -810,6 +810,7 @@ hashtable<_Val,_Key,_HF,_Ex,_Eq,_All>::equal_range(const key_type& __key)
   return _Pii(end(), end()); // 没有发现;
 }
 
+//返回const_iterator 的重载版本;
 template <class _Val, class _Key, class _HF, class _Ex, class _Eq, class _All>
 pair<typename hashtable<_Val,_Key,_HF,_Ex,_Eq,_All>::const_iterator, 
      typename hashtable<_Val,_Key,_HF,_Ex,_Eq,_All>::const_iterator> 
@@ -907,7 +908,7 @@ void hashtable<_Val,_Key,_HF,_Ex,_Eq,_All>::erase(const iterator& __it)
 template <class _Val, class _Key, class _HF, class _Ex, class _Eq, class _All>
 void hashtable<_Val,_Key,_HF,_Ex,_Eq,_All>
   ::erase(iterator __first, iterator __last)
-{
+{   // 指定迭起器范围进行删除, 首先计算所指 桶的下标;
   size_type __f_bucket = __first._M_cur ? 
     _M_bkt_num(__first._M_cur->_M_val) : _M_buckets.size();
   size_type __l_bucket = __last._M_cur ? 
@@ -916,6 +917,7 @@ void hashtable<_Val,_Key,_HF,_Ex,_Eq,_All>
   if (__first._M_cur == __last._M_cur)
     return;
   else if (__f_bucket == __l_bucket)
+    // 当删除迭代器的范围在一个桶内;
     _M_erase_bucket(__f_bucket, __first._M_cur, __last._M_cur);
   else {
     _M_erase_bucket(__f_bucket, __first._M_cur, 0);

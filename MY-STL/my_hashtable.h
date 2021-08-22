@@ -16,7 +16,7 @@
 
 #define _MY_NAMESPACE_BEGIN     namespace feiger{
 #define _MY_NAMESPACE_END       }
-
+#include "my_hash_fun.h"
 #include "my_pair.h"
 
 _MY_NAMESPACE_BEGIN
@@ -173,6 +173,17 @@ public:
     {
         initialize_buckets(n);
     }
+    hashtable& operator=(const hashtable& rhs) {
+        if (this != &rhs) {
+            clear();
+            hash = rhs.hash;
+            equals = rhs.equals;
+            get_key = rhs.get_key;
+            copy_from(rhs);
+        }
+        return *this;
+    }
+
     ~hashtable() {clear();} 
     iterator begin() {
         // 找到第一个存在元素的槽;
@@ -221,9 +232,11 @@ public:
     iterator insert_equal_noresize(const Value& obj);
     pair<iterator, bool> insert_unique(const value_type& obj);
     pair<iterator, bool> insert_unique_noresize(const value_type& obj);
+    pair<iterator, iterator> equal_range(const key_type& key);
     iterator find(const key_type& obj);
     size_type count(const key_type& obj);
     size_type erase(const key_type& obj);
+    size_type elems_in_bucket(size_type n);
     reference find_or_insert(const value_type& obj);
     void erase(const iterator& it);
     void copy_from(const hashtable& rhs);
@@ -257,6 +270,44 @@ private:
         return bkt_num_key(get_key(obj), n);
     }
 };
+
+// 找到与键值相同的元素的范围[first, last);
+template<class Value, class Key, class HashFcn,
+            class ExtractKey, class EqualKey>
+pair<typename hashtable<Value, Key, HashFcn, ExtractKey, EqualKey>::iterator,
+    typename hashtable<Value, Key, HashFcn, ExtractKey, EqualKey>::iterator> 
+hashtable<Value, Key, HashFcn, ExtractKey, EqualKey>::equal_range(const key_type& key)
+{
+    typedef pair<iterator, iterator> Pii;
+    Pii pii;
+    size_type index = bkt_num_key(key);
+    node *first = buckets[index];
+    // 首先找到第一个键值相同的; 
+    for (node *cur = first; cur; cur = cur->next) {
+        if (equals(get_key(cur->val), key)) { // 找到了第一个相同的
+            pii.first = iterator(cur, this);
+            for (node *tail = cur->next; tail; tail = tail->next){
+                if (!equals(get_key(tail->val), key)) 
+                {   // 存在不同的tail
+                    pii.second = iterator(tail, this);
+                    return pii;
+                }
+            }
+            for (size_type i = index + 1; i < buckets.size(); ++i) {
+                if (buckets[i] != nullptr) {
+                    pii.second = iterator(buckets[i], this);
+                    return pii;
+                }
+            }
+            //找到结尾也没有不同的;
+            pii.second = end();
+            return pii;
+        } 
+    }
+    // 没有找到返回;
+    return Pii(end(), end());
+
+}
 
 //找一找, 找不到就插入;
 template<class Value, class Key, class HashFcn,
@@ -513,6 +564,20 @@ void hashtable<Value, Key, HashFcn, ExtractKey, EqualKey>::resize(size_type n)
     }
     
     buckets.swap(tmp);
+}
+
+// 计算卡槽中元素数量;
+template<class Value, class Key, class HashFcn,
+            class ExtractKey, class EqualKey>
+typename hashtable<Value, Key, HashFcn, ExtractKey, EqualKey>::size_type
+hashtable<Value, Key, HashFcn, ExtractKey, EqualKey>::elems_in_bucket(size_type n) 
+{
+    size_type result = 0;
+    if (n >= buckets.size()) return 0;
+    for (node *cur = buckets[n]; cur; cur = cur->next) {
+        ++result;
+    }
+    return result;
 }
 
 // hashtable END

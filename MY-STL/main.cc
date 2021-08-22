@@ -762,8 +762,24 @@ int main() {
     for(auto it = mp1.begin(); it != mp1.end(); ++it){
         cout << "pair(" << it->first << "," << it->second << ")" << endl;
     }
+    
+    cout << "elems_in_bucket[0] = " << mp1.elems_in_bucket(0) << endl;
 
+    for(int i = 0; i < 3; ++i) {
+        cout << "input elements find equal_range : ";
+        cin >> p;
+        auto pii = mp1.equal_range(p);
+        if (pii.first != mp1.end())
+            cout << "key p equal_range = [ (" << pii.first->first <<  ", " << pii.first->second <<") , (";
+        if (pii.second != mp1.end())
+            cout << pii.second->first << ", " << pii.second->second <<") )\n";
+        else
+            cout << "end() ) )\n";
+    }
+    
+    
     return 0;
+
 }
 
 END(multimap_test)
