@@ -908,6 +908,71 @@ int main() {
 
 END(heap_test)
 
+#include "my_queue.h"
+
+BEGIN(prique_test)
+
+using std::cin;
+using std::cout;
+using std::endl;
+
+int main() {
+    
+    priority_queue<int> mqu;
+
+    cout << "mqu.szie() = " << mqu.size() << ", mqu.empty() = " << std::boolalpha << mqu.empty() << endl;
+    int val;
+    for (int i = 0; i < 10; ++i) {
+        cin >> val;
+        mqu.push(val);
+    }
+    
+    while (!mqu.empty()) {
+        cout << "mqu.top() = "<< mqu.top() << endl;
+        mqu.pop();
+    } 
+
+    return 0;
+}
+
+END(prique_test)
+
+BEGIN(numeric_test2)
+
+using std::cin;
+using std::cout;
+using std::endl;
+
+int main() {
+    
+    vector<int> vec(6, 0);
+    
+    auto output = [](vector<int>& vc){
+        cout << "vec[] = ";
+        for (auto i : vc) cout << i << " ";
+        cout << endl;
+    };
+    
+    for (int i = 0; i < 6; ++i) {
+        cin >> vec[i];
+    }
+    output(vec);
+    
+    cout << "adjacent_find = "<< *adjacent_find(vec.begin(), vec.end()) << endl;
+    cout << "adjacent_find first less = " << *adjacent_find(vec.begin(), vec.end(), less<int>()) << endl;
+
+    cout << "count(3) = " << count(vec.begin(), vec.end(), 3) << endl;
+    cout << "count_if( >3) = " << count_if(vec.begin(), vec.end(), [](int a){return a > 3;}) << endl;
+    
+    cout << "find(5) = " << *find(vec.begin(), vec.end(), 5) << endl;
+    cout << "find_if(>5) = " << *find_if(vec.begin(), vec.end(), [](int a){return a > 5;} ) << endl;
+
+    return 0;
+}
+
+END(numeric_test2)
+
+
 int main() {
     //allocator_test::main();
     //slist_test::main();
@@ -922,7 +987,9 @@ int main() {
     //map_test::main();
     //multimap_test::main();
     //numeric_test::main();
-    heap_test::main();    
+    //heap_test::main();    
+    //prique_test::main();
+    numeric_test2::main();
 
     return 0;
 }

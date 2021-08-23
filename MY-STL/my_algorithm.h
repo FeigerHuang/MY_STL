@@ -456,9 +456,7 @@ void sort(RandomAccessIterator first, RandomAccessIterator last, Compare cmp) {
     } 
 }
 
-
 // sort 算法 END
-
 
 _MY_NAMESPACE_END
 #undef LOG_ALGO
