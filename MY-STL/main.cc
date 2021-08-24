@@ -972,6 +972,59 @@ int main() {
 
 END(numeric_test2)
 
+#include "my_list.h"
+
+BEGIN(list_test)
+
+using std::cin;
+using std::cout;
+using std::endl;
+
+int main() {
+    
+    list<Node> lt;
+    auto output = [](list<Node>& t) {
+        cout << "list = ";
+        for (auto it = t.begin(); it != t.end(); ++it) {
+            cout << *it << "->";
+        }
+        cout << endl;
+    };
+    //auto p = lt.create_node(666);
+    //cout << "p->data = " << p->data << endl;
+    //lt.destroy_node(p);
+    cout << "lt.empty() = " << std::boolalpha << lt.empty() << endl;
+    lt.erase(lt.begin());
+    for (int i = 0; i < 6; ++i) {
+        lt.insert(lt.begin(), i + 1);
+        output(lt);
+    }
+    cout << "lt.empty() = " << std::boolalpha << lt.empty() << endl;
+    for (int i = 0; i < 6; ++i) {
+        lt.push_back(i + 1);
+        output(lt);
+    }
+     
+    for (int i = 0; i < 6; ++i) {
+        lt.erase(lt.begin());
+        output(lt);
+    }
+    
+    //for (int i = 0; i < 6; ++i) {
+    //    lt.pop_back();
+    //    output(lt);
+    //}
+    //auto func = [](list<Node>::iterator x) {cout << "x=" << *x << endl;};
+    //func(--lt.end());
+    lt.clear();
+    cout << "lt.empty() = " << std::boolalpha << lt.empty() << endl;
+
+
+
+    return 0;
+}
+
+END(list_test)
 
 int main() {
     //allocator_test::main();
@@ -989,7 +1042,8 @@ int main() {
     //numeric_test::main();
     //heap_test::main();    
     //prique_test::main();
-    numeric_test2::main();
+    //numeric_test2::main();
+    list_test::main();
 
     return 0;
 }
