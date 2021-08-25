@@ -13,7 +13,8 @@
 #else
 #define LOG_LIS(msg)
 #endif
-
+#include "my_iterator.h"
+#include "my_alloc.h"
 #define _MY_NAMESPACE_BEGIN     namespace feiger{
 #define _MY_NAMESPACE_END       }
 
@@ -135,7 +136,11 @@ public:
         destroy_node(virtual_node);
         return;
     }
-
+    size_type size() const {
+        size_type result = 0;
+        result = distance(cbegin(), cend());
+        return result;
+    }
     iterator begin() {return iterator(link_type(virtual_node->next));}
     iterator end() {return iterator(virtual_node);}
     const_iterator cbegin() const {return const_iterator(link_type(virtual_node->next));}
@@ -177,9 +182,41 @@ public:
         erase(--tmp);
         // 不能直接写成erase(--end());?rvalue 
     }
-    
+    void remove(const T& value); 
+    void unique();
     void clear();
 };
+
+template<class T,class Alloc>
+void list<T, Alloc>::unique() {
+    iterator first = begin();
+    iterator last = end();
+    if (first == last) return;
+    iterator next = first;
+    while (++next != last) {
+        if (*first == *next) {
+            erase(next);
+        } else {
+            first = next;
+        }
+        next = first;
+    }
+
+}
+
+template<class T, class Alloc>
+void list<T,Alloc>::remove(const T& value) {
+    iterator first = begin();
+    iterator last = end();
+    
+    while (first != last) {
+        iterator next = first;
+        ++next;
+        if (*first == value) erase(first);
+        first = next;
+    }
+}
+
 
 template<class T, class Alloc>
 void list<T,Alloc>::clear() {

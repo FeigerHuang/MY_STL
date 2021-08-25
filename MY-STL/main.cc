@@ -34,6 +34,9 @@ struct Node{
     Node(int x) :x(x), obj(){
         std::cout << this << ":Node() constructor\n";
     }
+    Node(const Node& rhs) :x(rhs.x), obj() {
+        //std::cout << this << ":Node(&) copy constructor\n";
+    }
     ~Node() {
         std::cout << this << ":~Node() destructor\n";
     }
@@ -1016,9 +1019,32 @@ int main() {
     //}
     //auto func = [](list<Node>::iterator x) {cout << "x=" << *x << endl;};
     //func(--lt.end());
-    lt.clear();
-    cout << "lt.empty() = " << std::boolalpha << lt.empty() << endl;
+    //lt.clear();
+    //cout << "lt.empty() = " << std::boolalpha << lt.empty() << endl;
+    
+    list<int>  lst;
+    for (int i = 0; i < 6; ++i) {
+        lst.push_front(i + 1);
+        lst.push_front(i + 1);
+    }
+    
+    auto output2 = [](list<int>& lt) {
+        for (auto it = lt.begin(); it != lt.end(); ++it) {
+            cout << *it << "->";
+        }
+        cout << endl;
+    };
+    output2(lst);
+    lst.remove(3);
+    cout << "after remove 3 :"; 
+    output2(lst);
+    cout << "list.size() = " << lst.size() << endl;
 
+    lst.unique();
+    cout << "after unique :"; 
+    output2(lst);
+    cout << "list.size() = " << lst.size() << endl;
+    
 
 
     return 0;
@@ -1026,6 +1052,49 @@ int main() {
 
 END(list_test)
 
+#include "my_deque.h"
+
+BEGIN(deque_test)
+
+using std::cin;
+using std::cout;
+using std::endl;
+
+int main() {
+
+    deque<Node> que(6, Node());
+    for (auto it = que.begin(); it != que.end(); ++it) {
+        cout << *it << " ,";
+    }
+    cout << endl;
+    
+    auto output = [](deque<Node>& q) {
+        for (auto it = q.begin(); it != q.end(); ++it) 
+            cout << *it << " ,";
+        cout << endl;
+    };
+
+    for (int i = 0;  i < 6; ++i) {
+        que.push_back(i);
+    }
+    output(que);
+    
+    for (int i = 6; i < 12; ++i) {
+        que.push_front(i);
+    }
+    output(que);
+    cout << RED <<  "que.front() = " << que.front() << ", que.back() = " << que.back() << FIN <<endl;  
+    while (!que.empty()) {
+        que.pop_back();
+        output(que);
+        cout << BLU << "que.size() = " << que.size() << FIN << endl; 
+    }
+
+    return 0;
+}
+
+END(deque_test)
+    
 int main() {
     //allocator_test::main();
     //slist_test::main();
@@ -1043,7 +1112,9 @@ int main() {
     //heap_test::main();    
     //prique_test::main();
     //numeric_test2::main();
-    list_test::main();
+    //list_test::main();
+    deque_test::main();
+    
 
     return 0;
 }

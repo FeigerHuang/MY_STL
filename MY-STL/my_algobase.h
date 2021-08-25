@@ -227,7 +227,6 @@ char *copy_backward(const char *first,const char *last, char *result)
     return result - NUM;
 }
 
-
 //copy_backward END
 
 // uninitialized_fill_n 实现 BEGIN
@@ -239,6 +238,7 @@ ForwardIterator __uninitialized_fill_n_aux(ForwardIterator first, Size n, const 
     for(; n > 0;--n, ++cur) {
         construct(&*cur, x);
     }
+    LOG_ALG("construct " << n << " objects finish");
     return cur;
 }
 
@@ -265,9 +265,42 @@ ForwardIterator uninitialized_fill_n(ForwardIterator first, Size n, const T& x)
 
 // uninitialized_fill_n 实现 END 
 
+// uninitialized_fill 实现 BEGIN
+
+template <class ForwardIterator, class T>
+ForwardIterator __uninitialized_fill_aux(ForwardIterator first, ForwardIterator last, const T& x, __false_type) {
+    ForwardIterator cur = first;
+    LOG_ALG("uninitialized_fill judge is_POD = __false_type");
+    for(; cur != last; ++cur) {
+        construct(&*cur, x);
+    }
+    return cur;
+}
+
+template <class ForwardIterator, class T>
+ForwardIterator __uninitialized_fill_aux(ForwardIterator first, ForwardIterator last, const T& x, __true_type) {
+    LOG_ALG("uninitialized_fill judge is_POD = __true_type");
+    return _M_fill(first, last, x);
+}
+
+template <class ForwardIterator, class T, class T1>
+inline
+ForwardIterator __uninitialized_fill(ForwardIterator first, ForwardIterator last, const T& x, T1*) 
+{
+    typedef typename __type_traits<T1>::is_POD_type is_POD;
+    return __uninitialized_fill_aux(first, last, x, is_POD());
+}
+
+template <class ForwardIterator, class T>
+inline 
+ForwardIterator uninitialized_fill(ForwardIterator first, ForwardIterator last, const T& x)
+{
+    return __uninitialized_fill(first, last, x, get_value_type(first));
+}
+
+// uninitialized_fill 实现 END 
 
 _MY_NAMESPACE_END
 
 #undef LOG_ALG
-
 #endif
