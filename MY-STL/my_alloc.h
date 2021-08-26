@@ -13,6 +13,10 @@
 #include <stddef.h>
 #include <stdlib.h>
 
+#define BLU  "\033[34m"
+#define YEL  "\033[33m"
+#define RED  "\033[31m"
+#define FIN   "\033[0m"
 #ifdef BUG_ALL
 #define LOG(msg) {std::cerr << msg << std::endl;}
 #else
@@ -54,11 +58,11 @@ public:
     typedef ptrdiff_t difference_type;
 
     static pointer allocate(size_type n) {
-        pointer result = static_cast<pointer>(malloc(n));
+        pointer result = (pointer)(malloc(n));
         if (0 == result) {
             std::cerr << "malloc out of memory" << std::endl;
         }
-        LOG("malloc address = " << result );
+        LOG(YEL << "malloc address = " << result << ", size =" << n << FIN);
         return result;
     }
 
@@ -96,7 +100,8 @@ template<class T, class Alloc = allocator<T> >
 class simple_alloc{
 public:
     static T *allocate(size_t n) {
-        return 0 == n ? 0 : (T*)Alloc::allocate(n * sizeof(T));
+        LOG("allocate size = " << n);
+        return 0 == n ? 0 : (T*)(Alloc::allocate(n * sizeof(T)) );
     }
     
     static T *allocate(void){
@@ -105,6 +110,7 @@ public:
     
     static void deallocate(T* p, size_t n) {
         if (0 == n) return ;
+        LOG("deallocate adress = " << p << " ,size = " << n);
         Alloc::deallocate(p, n * sizeof(T));
     }
 

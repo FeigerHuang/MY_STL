@@ -7,6 +7,10 @@
 
 #ifndef _MY_DEQUE_H
 #define _MY_DEQUE_H
+#define BLU  "\033[34m"
+#define YEL  "\033[33m"
+#define RED  "\033[31m"
+#define FIN   "\033[0m"
 
 #ifdef BUG_DEQ
 #define LOG_DEQ(msg) {std::cerr << msg << std::endl;}
@@ -160,6 +164,7 @@ protected:
     typedef simple_alloc<pointer>            map_allocatetor;
     enum {_M_init_map_size = 8} ; // 最少给一张map分配8个节点;
 protected:
+public:
     iterator    start;
     iterator    finish;
     Map_pointer map;
@@ -170,7 +175,7 @@ protected:
     }
     void deallocate_node(pointer x) {
         data_allocatetor::deallocate(x);
-        LOG_DEQ("node create finish!");
+        LOG_DEQ("deallocate_node finish!");
     }
     void fill_initialize(size_type n, const value_type& x); 
     void create_map_and_nodes(size_type num_elements);
@@ -203,16 +208,102 @@ public:
         --tmp;
         return *tmp;
     } 
-
+    
     bool empty() const {return start == finish;}
-
     void push_back(const value_type& x);
     void push_back_aux(const value_type& x);
     void push_front(const value_type& x);
     void push_front_aux(const value_type& x);
     void pop_back();
     void pop_back_aux();
+    void pop_front();
+    void pop_front_aux();
+    void clear();
+protected:
+    void reserve_map_at_back(size_type nodes_to_add = 1);
+    void reserve_map_at_front(size_type nodes_to_add = 1);
+    void reallocate_map(size_type nodes_to_add, bool add_to_front);
 };
+
+// 检查空间,是否扩容;
+template <class T, class Alloc>
+void deque<T, Alloc>::reserve_map_at_back(size_type nodes_to_add) {
+    // 当 加入新节点数 大于|map_size| - | 已用节点数 | = 尾部剩余可用空间;
+    if (nodes_to_add  > map_size - (finish.M_node - map + 1)) {
+        reallocate_map(nodes_to_add, false);
+        LOG_DEQ(RED << "reserve_map_at_back" << FIN);
+    }
+}
+
+template <class T, class Alloc>
+void deque<T, Alloc>::reserve_map_at_front(size_type nodes_to_add) {
+    // 当 加入新节点数 大于|开始节点位| - |其实空间位 | = 头部剩余可用空间;
+    if (nodes_to_add > start.M_node - map) {
+        reallocate_map(nodes_to_add, true);
+        LOG_DEQ(RED << "reserve_map_at_front" << FIN);
+    }
+}
+
+// 重新配置map的大小,拷贝原来的node节点过来, 只用拷贝指针, 原map上存的就是指针;
+template <class T, class Alloc>
+void deque<T, Alloc>::reallocate_map(size_type nodes_to_add, bool add_to_front) {
+    // 计算扩容后的节点数量;
+    size_type old_num_nodes = finish.M_node - start.M_node + 1;
+    size_type new_num_nodes = old_num_nodes + nodes_to_add;
+    
+    Map_pointer new_start;
+    // 如果当前map大小大于加入新空间的2倍,那么移动指针就行;
+    if (map_size > 2 * new_num_nodes) {
+        LOG_DEQ(YEL << "just move pointer at map BEGIN" << FIN);
+        new_start = map + (map_size - new_num_nodes) / 2 + (add_to_front ? nodes_to_add : 0);
+        if (new_start < start.M_node) {
+            copy(start.M_node, finish.M_node + 1, new_start);
+        } else {
+            copy_backward(start.M_node, finish.M_node + 1, new_start + old_num_nodes);
+        }
+        LOG_DEQ(YEL << "just move pointer at map END" << FIN);
+    } // 当空间不足, 需要重新分配map;
+    else {
+        size_type new_map_size = map_size + max(map_size, nodes_to_add) + 2;
+        Map_pointer new_map = map_allocatetor::allocate(new_map_size);
+        // 计算新的开始位;
+        new_start = new_map + (new_map_size - new_num_nodes) / 2 + (add_to_front ? nodes_to_add : 0);
+        // 只用拷贝原map指针过来;
+        copy(start.M_node, finish.M_node, new_start);
+        LOG_DEQ(RED << "old_map = " << map << FIN);
+        LOG_DEQ(RED << "new_map = " << new_map << FIN);
+        map_allocatetor::deallocate(this->map, map_size);
+        this->map = new_map;
+        this->map_size = new_map_size;
+        LOG_DEQ(BLU << "reallocate_map size = " << map_size << FIN);
+    }
+    // 这个时候只是扩容, 并未插入元素;
+    start.set_node(new_start);
+    finish.set_node(new_start + old_num_nodes - 1);
+    //start 和 finish中的cur, first , last都还是指向原来的元素, 变得不过是map中存放的指向node的指针;
+    
+}
+
+
+// 从头部弹出元素;    
+template <class T, class Alloc>
+void deque<T, Alloc>::pop_front() {
+    if (start.cur + 1 != start.last) {
+        destroy(start.cur);
+        ++start.cur;
+    } else {
+        pop_front_aux();
+    }
+}
+    
+template <class T, class Alloc>
+void deque<T, Alloc>::pop_front_aux() {
+    destroy(start.cur);
+    deallocate_node(start.first);
+    start.set_node(start.M_node + 1);
+    start.cur = start.first;
+    return ;
+}
 
 // 从尾部弹出元素;
 template <class T, class Alloc>
@@ -250,7 +341,7 @@ void deque<T, Alloc>::push_back(const value_type& x) {
 template<class T, class Alloc>
 void deque<T, Alloc>::push_back_aux(const value_type& x) {
     value_type x_copy = x;
-    //reserve_map_at_back();
+    reserve_map_at_back(1);
     *(finish.M_node + 1) = allocate_node();
     construct(finish.cur, x_copy);
     finish.set_node(finish.M_node + 1);
@@ -271,7 +362,7 @@ void deque<T, Alloc>::push_front(const value_type& x) {
 template<class T, class Alloc>
 void deque<T, Alloc>::push_front_aux(const value_type& x) {
     value_type x_copy = x;
-    //reserve_map_at_front();
+    reserve_map_at_front(1);
     *(start.M_node - 1) = allocate_node();
     start.set_node(start.M_node - 1);
     start.cur = start.last - 1;
@@ -317,6 +408,24 @@ void deque<T, Alloc>::create_map_and_nodes(size_type num_elements) {
     return;
 }
 
+template<class T, class Alloc>
+void deque<T, Alloc>::clear() {
+    for (Map_pointer node = start.M_node + 1;node < finish.M_node; ++node) {
+        // 将 中间装满buf的节点先调用destroy在释放内存;
+        destroy(*node, *node + buffer_size());
+        data_allocatetor::deallocate(*node, buffer_size());
+    }
+    // 然后保留一个节点;
+    if (start.M_node != finish.M_node) {
+        destroy(start.cur, start.last);
+        destroy(finish.first, finish.cur);
+        data_allocatetor::deallocate(finish.first, buffer_size());
+    } else {
+        destroy(start.cur, finish.cur);
+    }
+
+    finish = start;
+}
 
 _MY_NAMESPACE_END
 

@@ -1084,12 +1084,40 @@ int main() {
     }
     output(que);
     cout << RED <<  "que.front() = " << que.front() << ", que.back() = " << que.back() << FIN <<endl;  
-    while (!que.empty()) {
-        que.pop_back();
-        output(que);
-        cout << BLU << "que.size() = " << que.size() << FIN << endl; 
+   // while (!que.empty()) {
+   //     //que.pop_back();
+   //     que.pop_front();
+   //     output(que);
+   //     cout << BLU << "que.size() = " << que.size() << FIN << endl; 
+   // }
+    
+    que.clear();
+    output(que);
+    
+    deque<int> que2(6000, 0);
+    auto output2 = [](deque<int>& q) {
+        for (auto it = q.begin(); it != q.end(); ++it) 
+            cout << *it << " ,";
+        cout << endl;
+    };
+    
+    for (int i = 0 ; i < 6000; ++i) {
+        que2.push_back(i + 1);
+        //que2.push_front(i + 1);
+        //output2(que2);
     }
-
+    cout << "deque<int>buffer_size = " << deque_iterator<int,int&, int *>::buffer_size() << endl;
+    cout << que2.map_size << endl;
+    cout << "start last = "<< que2.start.M_node - que2.map << " , back last = " << que2.map_size - (que2.finish.M_node - que2.map);
+    // deque have some problem;
+    for (int i = 0 ; i < 6000; ++i) {
+        //que2.push_back(i + 1);
+        que2.push_front(i + 1);
+        //output2(que2);
+    }
+    cout << "deque<int>buffer_size = " << deque_iterator<int,int&, int *>::buffer_size() << endl;
+    cout << que2.map_size << endl;
+    cout << "start last = "<< que2.start.M_node - que2.map << " , back last = " << que2.map_size - (que2.finish.M_node - que2.map);
     return 0;
 }
 
