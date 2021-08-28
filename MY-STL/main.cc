@@ -18,7 +18,6 @@
 
 
 
-
 using namespace feiger;
 
 struct AP{
@@ -1094,42 +1093,81 @@ int main() {
     que.clear();
     output(que);
     
-    deque<int> que2(666, 0);
+    deque<int> que2(1, 0);
     auto output2 = [](deque<int>& q) {
         for (auto it = q.begin(); it != q.end(); ++it) 
             cout << *it << " ,";
     };
     cout << BLU <<  "size = " << que2.size() << FIN << endl; 
     
-    output2(que2);
+    //output2(que2);
 
-    for (int i = 0 ; i < 600; ++i) {
-        que2.push_back(i + 1);
-        //que2.push_front(i + 1);
-        //output2(que2);
-        cout << BLU <<  "size = " << que2.size() << FIN << ","; 
-    }
-    output2(que2);
+    //for (int i = 0 ; i < 600; ++i) {
+    //    que2.push_back(i + 1);
+    //    //que2.push_front(i + 1);
+    //    //output2(que2);
+    //    cout << BLU <<  "size = " << que2.size() << FIN << ","; 
+    //}
+    //output2(que2);
     
-    cout << "deque<int>buffer_size = " << deque_iterator<int,int&, int *>::buffer_size() << endl;
-    cout << que2.map_size << endl;
-    cout << "start last = "<< que2.start.M_node - que2.map << " , back last = " << que2.map_size - (que2.finish.M_node - que2.map);
+    //cout << "deque<int>buffer_size = " << deque_iterator<int,int&, int *>::buffer_size() << endl;
+    //cout << que2.map_size << endl;
+    //cout << "start last = "<< que2.start.M_node - que2.map << " , back last = " << que2.map_size - (que2.finish.M_node - que2.map);
     // deque
-    for (int i = 0 ; i < 6000; ++i) {
-        que2.push_back(i + 1);
-        que2.push_front(i + 1);
-        //output2(que2);
-        cout << BLU <<  "size = " << que2.size() << FIN << endl;
+    //for (int i = 0 ; i < 6000; ++i) {
+    //    que2.push_back(i + 1);
+    //    que2.push_front(i + 1);
+    //    //output2(que2);
+    //    cout << BLU <<  "size = " << que2.size() << FIN << endl;
+    //}
+    //cout << "deque<int>buffer_size = " << deque_iterator<int,int&, int *>::buffer_size() << endl;
+    //cout << que2.map_size << endl;
+    //cout << RED << que2.size() << " = que2.size() " << FIN << endl;
+    //output2(que2);
+    //for (int i = 0; i < que2.size(); ++i) {
+    //    cout << que2[i] << ",";
+    //}
+    //cout << endl;
+    //cout << "start last = "<< que2.start.M_node - que2.map << " , back last = " << que2.map_size - (que2.finish.M_node - que2.map);
+    
+    deque<int> que3(1, 6);
+    for (int i = 0; i < 6; ++i) {
+        que3.push_front(i + 1);
     }
-    cout << "deque<int>buffer_size = " << deque_iterator<int,int&, int *>::buffer_size() << endl;
-    cout << que2.map_size << endl;
-    cout << RED << que2.size() << " = que2.size() " << FIN << endl;
-    output2(que2);
-    for (int i = 0; i < que2.size(); ++i) {
-        cout << que2[i] << ",";
+    output2(que3);
+    cout << "que3.size() = " << que3.size() << endl; 
+    
+    que3.erase(que3.begin() + 1 );
+    output2(que3);
+    cout << "que3.size() = " << que3.size() << endl; 
+    
+    que3.erase(que3.end() - 2);
+    output2(que3);
+    cout << "que3.size() = " << que3.size() << endl; 
+    
+    que3.erase(que3.begin() + 2, que3.end());
+    output2(que3);
+    cout << "que3.size() = " << que3.size() << endl; 
+
+    que3.insert(que3.begin() + 2, 888);
+    output2(que3);
+    cout << "que3.size() = " << que3.size() << endl; 
+    
+    que3.insert(que3.begin() + 2, 777);
+    output2(que3);
+    cout << "que3.size() = " << que3.size() << endl; 
+    
+    for (int i = 0; i < 5; ++i) {
+        que3.insert(que3.begin() + 2, (i + 1) * 11);
+        output2(que3);
+        cout << "que3.size() = " << que3.size() << endl; 
     }
-    cout << endl;
-    cout << "start last = "<< que2.start.M_node - que2.map << " , back last = " << que2.map_size - (que2.finish.M_node - que2.map);
+    for (int i = 5; i < 10; ++i) {
+        que3.insert(que3.end() - 3, (i + 1) * 11);
+        output2(que3);
+        cout << "que3.size() = " << que3.size() << endl; 
+    }
+    
     return 0;
 }
 
@@ -1194,8 +1232,8 @@ int main() {
     //prique_test::main();
     //numeric_test2::main();
     //list_test::main();
-    //deque_test::main();
-    que_test::main();
+    deque_test::main();
+    //que_test::main();
 
     return 0;
 }

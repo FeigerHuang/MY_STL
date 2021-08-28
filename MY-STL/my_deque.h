@@ -232,6 +232,10 @@ public:
     void pop_front();
     void pop_front_aux();
     void clear();
+    iterator erase(iterator pos);
+    iterator erase(iterator first, iterator last);
+    iterator insert(iterator pos, const value_type& x);
+    iterator insert_aux(iterator pos, const value_type& x);
 protected:
     void reserve_map_at_back(size_type nodes_to_add = 1);
     void reserve_map_at_front(size_type nodes_to_add = 1);
@@ -245,6 +249,104 @@ void deque<T, Alloc>::reserve_map_at_back(size_type nodes_to_add) {
     if (nodes_to_add  > map_size - (finish.M_node - map + 1)) {
         reallocate_map(nodes_to_add, false);
         LOG_DEQ(RED << "reserve_map_at_back" << FIN);
+    }
+}
+
+// 在指定位置插入元素;
+template <class T, class Alloc>
+typename deque<T, Alloc>::iterator 
+deque<T, Alloc>::insert(iterator pos, const value_type& x) {
+    if (pos == start) {
+        push_front(x);
+        return start;
+    }
+    else if (pos == finish){
+        push_back(x);
+        iterator tmp = finish;
+        --tmp;
+        return tmp;
+    }
+    else{
+        return insert_aux(pos, x);
+    } 
+}
+
+// 封装 insert_aux ,用来处理复杂情况;
+template <class T, class Alloc>
+typename deque<T, Alloc>::iterator 
+deque<T, Alloc>::insert_aux(iterator pos, const value_type& x) {
+    difference_type index = pos - start; // 计算插入点之前的元素个数;
+    value_type x_copy = x;
+    // 分类处理, 1.插入点前方元素少 2. 插入点后边元素少;
+    if (index < size() / 2) {
+        push_front(front());
+        iterator front1 = start; 
+        ++front1; // start, -> front1, -> front2;
+        iterator front2 = front1;
+        ++front2;
+        pos = start + index; 
+        iterator pos1 = pos;
+        ++pos1;  //  将 pos 之前的元素向前移动一位;
+        copy(front2, pos1, front1);
+    } else {
+        push_back(back());
+        iterator back1 = finish;
+        --back1;
+        iterator back2 = back1;
+        --back2;
+        pos = start + index; // 将pos 后面的元素整体后移一位;
+        copy_backward(pos, back2, back1);
+    }
+    *pos = x_copy;
+    return pos;
+}
+
+//从指定迭代器位删除元素;
+template <class T, class Alloc>
+typename deque<T, Alloc>::iterator 
+deque<T, Alloc>::erase(iterator pos) {
+    iterator next = pos;
+    ++next;
+    difference_type index = pos - start;
+    if (index < (size() >> 1)) { // 当pos前方元素较少时;
+        copy_backward(start, pos, next);
+        pop_front();
+    } else {
+        copy(next, finish, pos);
+        pop_back();
+    }
+    return start + index;
+}
+
+//删除迭代器范围内的元素;
+template <class T, class Alloc>
+typename deque<T, Alloc>::iterator 
+deque<T, Alloc>::erase(iterator first, iterator last) {
+    if (first == start && last == finish) {
+        clear();
+        return finish;
+    }
+    else {
+        difference_type n = last - first; // 计算要删除元素的多少;
+        difference_type elems_before = first - start;
+        if (elems_before < (size() - n) / 2) { // first前面的元素较少时;
+            copy_backward(start, first, last);
+            iterator new_start = start + n;
+            destroy(start, new_start);   // 删除前面空的节点;
+            for (Map_pointer cur = start.M_node; cur < new_start.M_node; ++cur) { 
+                data_allocatetor::deallocate(*cur, buffer_size());
+            }
+            start = new_start;
+        } else {  // 移动后面的元素;
+            copy(last, finish, first);
+            iterator new_finish = finish - n;
+            destroy(new_finish, finish); // 析构掉多余元素;
+            for (Map_pointer cur = new_finish.M_node + 1; cur <= finish.M_node; ++cur) { 
+                data_allocatetor::deallocate(*cur, buffer_size());
+            }
+            finish = new_finish;
+        }
+        return start + elems_before;
     }
 }
 
