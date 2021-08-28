@@ -7,7 +7,7 @@
 
 #ifndef _MY_QUEUE_H
 #define _MY_QUEUE_H
-
+#include "my_deque.h"
 #include "my_heap.h"
 #include "my_vector.h"
 
@@ -15,6 +15,29 @@
 #define _MY_NAMESPACE_END       }
 
 _MY_NAMESPACE_BEGIN
+
+// 适配器(配接器) queue的实现
+template <class T, class Sequence = deque<T> >
+class queue {
+public:
+    typedef typename Sequence::value_type       value_type;
+    typedef typename Sequence::size_type        size_type;
+    typedef typename Sequence::reference        reference;
+    typedef typename Sequence::const_reference  const_reference;
+protected:
+    Sequence  que;
+public:
+    bool empty() {return que.empty();}
+    size_type size() {return que.size();}
+    reference front() {return que.front();}
+    const_reference front() const {return que.front();}
+    reference back() {return que.back();}
+    const_reference back() const {return que.back();}
+    void push(const value_type& x) {return que.push_back(x);}
+    void pop() {return que.pop_front();}
+
+};
+
 
 // priority_queue container adapter 实现
 template <class T, class Sequence = vector<T>,
@@ -45,8 +68,6 @@ public:
         vec.pop_back();
     }
 };
-
-
 
 
 _MY_NAMESPACE_END

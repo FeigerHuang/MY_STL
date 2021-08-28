@@ -1094,35 +1094,88 @@ int main() {
     que.clear();
     output(que);
     
-    deque<int> que2(6000, 0);
+    deque<int> que2(666, 0);
     auto output2 = [](deque<int>& q) {
         for (auto it = q.begin(); it != q.end(); ++it) 
             cout << *it << " ,";
-        cout << endl;
     };
+    cout << BLU <<  "size = " << que2.size() << FIN << endl; 
     
-    for (int i = 0 ; i < 6000; ++i) {
+    output2(que2);
+
+    for (int i = 0 ; i < 600; ++i) {
         que2.push_back(i + 1);
         //que2.push_front(i + 1);
         //output2(que2);
+        cout << BLU <<  "size = " << que2.size() << FIN << ","; 
     }
+    output2(que2);
+    
     cout << "deque<int>buffer_size = " << deque_iterator<int,int&, int *>::buffer_size() << endl;
     cout << que2.map_size << endl;
     cout << "start last = "<< que2.start.M_node - que2.map << " , back last = " << que2.map_size - (que2.finish.M_node - que2.map);
-    // deque have some problem;
+    // deque
     for (int i = 0 ; i < 6000; ++i) {
-        //que2.push_back(i + 1);
+        que2.push_back(i + 1);
         que2.push_front(i + 1);
         //output2(que2);
+        cout << BLU <<  "size = " << que2.size() << FIN << endl;
     }
     cout << "deque<int>buffer_size = " << deque_iterator<int,int&, int *>::buffer_size() << endl;
     cout << que2.map_size << endl;
+    cout << RED << que2.size() << " = que2.size() " << FIN << endl;
+    output2(que2);
+    for (int i = 0; i < que2.size(); ++i) {
+        cout << que2[i] << ",";
+    }
+    cout << endl;
     cout << "start last = "<< que2.start.M_node - que2.map << " , back last = " << que2.map_size - (que2.finish.M_node - que2.map);
     return 0;
 }
 
 END(deque_test)
+
+#include "my_stack.h"
+
+BEGIN(que_test)
+
+using std::cin;
+using std::cout;
+using std::endl;
+
+int main() {
+    queue<Node>  que;
+    //cout << que.front() << endl;
+    cout << "que.size() = " << que.size() << " , que.empty()=" << std::boolalpha << que.empty() << endl;
+    for (int i = 0; i < 20; ++i) {
+        que.push(i + 1);
+        cout << "que.size() = " << que.size() << " , que.empty()=" << que.empty() << endl;
+    }
     
+    while (!que.empty()) {
+        cout << RED << "que.front() = " << que.front() << FIN << endl;    
+        que.pop();
+    }
+    
+    cout << "--------------------------------\n";
+    stack<Node> sta;
+    cout << "sta.size() = " << sta.size() << " , sta.empty()=" << std::boolalpha << sta.empty() << endl;
+    for (int i = 0; i < 20; ++i) {
+        sta.push(i + 1);
+        cout << "sta.size() = " << sta.size() << " , sta.empty()=" << std::boolalpha << sta.empty() << endl;
+    }
+    
+    while (!sta.empty()) {
+        cout << RED << "sta.top() = " << sta.top() << FIN << endl;    
+        sta.pop();
+    }
+    
+    return 0;
+}
+
+
+END(que_test)
+
 int main() {
     //allocator_test::main();
     //slist_test::main();
@@ -1141,8 +1194,8 @@ int main() {
     //prique_test::main();
     //numeric_test2::main();
     //list_test::main();
-    deque_test::main();
-    
+    //deque_test::main();
+    que_test::main();
 
     return 0;
 }

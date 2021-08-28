@@ -152,6 +152,7 @@ public:
     typedef value_type&         reference;
     typedef const value_type&   const_reference;
     typedef size_t              size_type;
+    typedef ptrdiff_t           difference_type;
     
 public:
     typedef deque_iterator<T,T&,T*>           iterator;
@@ -177,19 +178,30 @@ public:
         data_allocatetor::deallocate(x);
         LOG_DEQ("deallocate_node finish!");
     }
-    void fill_initialize(size_type n, const value_type& x); 
+    void fill_initialize(size_type n, const value_type& x = T()); 
     void create_map_and_nodes(size_type num_elements);
     size_type init_map_size() {
         return static_cast<size_type>(_M_init_map_size);
     }
 public:
+    deque() : start(), finish(), map(0), map_size(0) {
+        fill_initialize(0);
+    }
     deque(int n, const value_type& x) 
         : start(), finish(), map(0), map_size(0)
     {
         LOG_DEQ("deque constructor finish!"); 
         fill_initialize(n, x);
     }
-    
+    ~deque() {
+        if (map) {
+            for (Map_pointer it = start.M_node; it != finish.M_node + 1; ++it) {
+                deallocate_node(*it);
+            }
+        }
+        map_allocatetor::deallocate(map, map_size);
+    }
+
     size_type size() {return finish - start;}
     size_type max_size() {return size_type(-1);}
 
@@ -209,6 +221,7 @@ public:
         return *tmp;
     } 
     
+    reference operator[](size_type x) {return start[difference_type(x)];} 
     bool empty() const {return start == finish;}
     void push_back(const value_type& x);
     void push_back_aux(const value_type& x);
@@ -268,8 +281,8 @@ void deque<T, Alloc>::reallocate_map(size_type nodes_to_add, bool add_to_front) 
         Map_pointer new_map = map_allocatetor::allocate(new_map_size);
         // 计算新的开始位;
         new_start = new_map + (new_map_size - new_num_nodes) / 2 + (add_to_front ? nodes_to_add : 0);
-        // 只用拷贝原map指针过来;
-        copy(start.M_node, finish.M_node, new_start);
+        // 只用拷贝原map指针过来; 这里注意 copy的last= finish.M_node + 1;
+        copy(start.M_node, finish.M_node + 1, new_start);
         LOG_DEQ(RED << "old_map = " << map << FIN);
         LOG_DEQ(RED << "new_map = " << new_map << FIN);
         map_allocatetor::deallocate(this->map, map_size);
@@ -371,7 +384,7 @@ void deque<T, Alloc>::push_front_aux(const value_type& x) {
 
 
 template<class T, class Alloc>
-void deque<T, Alloc>::fill_initialize(size_type n, const value_type& x) {
+void deque<T, Alloc>::fill_initialize(size_type n, const value_type& x ) {
     // 初始化map及map所指节点;
     create_map_and_nodes(n);
     Map_pointer cur;
