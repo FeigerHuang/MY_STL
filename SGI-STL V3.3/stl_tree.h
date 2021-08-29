@@ -63,11 +63,12 @@ __STL_BEGIN_NAMESPACE
 #if defined(__sgi) && !defined(__GNUC__) && (_MIPS_SIM != _MIPS_SIM_ABI32)
 #pragma set woff 1375
 #endif
-
+// 红黑树颜色定义 red为false
 typedef bool _Rb_tree_Color_type;
 const _Rb_tree_Color_type _S_rb_tree_red = false;
 const _Rb_tree_Color_type _S_rb_tree_black = true;
 
+// 红黑树节点基类    包含字段{bool color,* parent,* left, *right}
 struct _Rb_tree_node_base
 {
   typedef _Rb_tree_Color_type _Color_type;
@@ -79,18 +80,19 @@ struct _Rb_tree_node_base
   _Base_ptr _M_right;
 
   static _Base_ptr _S_minimum(_Base_ptr __x)
-  {
+  {  // 返回 最左 也就是最小值;
     while (__x->_M_left != 0) __x = __x->_M_left;
     return __x;
   }
 
   static _Base_ptr _S_maximum(_Base_ptr __x)
-  {
+  { // 返回 最右 也就是最大值
     while (__x->_M_right != 0) __x = __x->_M_right;
     return __x;
   }
 };
 
+// 红黑树节点 继承 基类, 是基类的延申增加了 Value字段;
 template <class _Value>
 struct _Rb_tree_node : public _Rb_tree_node_base
 {
@@ -98,54 +100,57 @@ struct _Rb_tree_node : public _Rb_tree_node_base
   _Value _M_value_field;
 };
 
-
+// 红黑色的 迭代器 基类
 struct _Rb_tree_base_iterator
 {
   typedef _Rb_tree_node_base::_Base_ptr _Base_ptr;
-  typedef bidirectional_iterator_tag iterator_category;
+  typedef bidirectional_iterator_tag iterator_category; // 迭代器tag 为双向迭代器;
   typedef ptrdiff_t difference_type;
-  _Base_ptr _M_node;
+  _Base_ptr _M_node;  // 内含一个 指向 节点的指针;
 
   void _M_increment()
-  {
-    if (_M_node->_M_right != 0) {
+  {  // ++操作, 找到第一个比当前大的节点;
+    if (_M_node->_M_right != 0) {  // 找后继
       _M_node = _M_node->_M_right;
       while (_M_node->_M_left != 0)
         _M_node = _M_node->_M_left;
     }
-    else {
+    else { // 没有后继, 上升到 父节点;
       _Base_ptr __y = _M_node->_M_parent;
+        // 如果一直 是右孩子, 不行, 继续向上, 要找左, 这是父大于左
       while (_M_node == __y->_M_right) {
         _M_node = __y;
         __y = __y->_M_parent;
-      }
+      }  // 判断如果没得上升虚拟位, 就是它了;
       if (_M_node->_M_right != __y)
         _M_node = __y;
     }
   }
 
   void _M_decrement()
-  {
+  {   // --操作, 找到第一个比当前小的节点
     if (_M_node->_M_color == _S_rb_tree_red &&
-        _M_node->_M_parent->_M_parent == _M_node)
-      _M_node = _M_node->_M_right;
-    else if (_M_node->_M_left != 0) {
+        _M_node->_M_parent->_M_parent == _M_node) // 虚拟头的右指针指向最右节点;
+      _M_node = _M_node->_M_right; // 如果是虚拟头节点了, 让其指向最右的节点;
+    else if (_M_node->_M_left != 0) { // 存在左孩子
       _Base_ptr __y = _M_node->_M_left;
-      while (__y->_M_right != 0)
+      while (__y->_M_right != 0) // 找到前驱
         __y = __y->_M_right;
       _M_node = __y;
     }
-    else {
+    else {  // 没有左孩子, 上升到父节点;
       _Base_ptr __y = _M_node->_M_parent;
+          // 当 当前节点是 父节点的最孩子 不行, 找到 第一个 右孩子
       while (_M_node == __y->_M_left) {
         _M_node = __y;
         __y = __y->_M_parent;
-      }
+      } // 这时父节点才小于 右孩子, 就是它了;
       _M_node = __y;
     }
   }
 };
 
+// 红黑树迭代器继承基类迭代器 , 再进行扩展功能, 代码十分的紧凑: 浑然一体的封装;
 template <class _Value, class _Ref, class _Ptr>
 struct _Rb_tree_iterator : public _Rb_tree_base_iterator
 {
@@ -159,16 +164,18 @@ struct _Rb_tree_iterator : public _Rb_tree_base_iterator
   typedef _Rb_tree_iterator<_Value, _Ref, _Ptr>                   
     _Self;
   typedef _Rb_tree_node<_Value>* _Link_type;
-
+// 实现相应的构造函数
   _Rb_tree_iterator() {}
   _Rb_tree_iterator(_Link_type __x) { _M_node = __x; }
   _Rb_tree_iterator(const iterator& __it) { _M_node = __it._M_node; }
 
+// 重载 解引用和 指针运算符;
   reference operator*() const { return _Link_type(_M_node)->_M_value_field; }
 #ifndef __SGI_STL_NO_ARROW_OPERATOR
   pointer operator->() const { return &(operator*()); }
 #endif /* __SGI_STL_NO_ARROW_OPERATOR */
 
+// 自增 和 自减 直接调用基类的方法;
   _Self& operator++() { _M_increment(); return *this; }
   _Self operator++(int) {
     _Self __tmp = *this;
@@ -213,25 +220,28 @@ inline _Value* value_type(const _Rb_tree_iterator<_Value, _Ref, _Ptr>&) {
 
 #endif /* __STL_CLASS_PARTIAL_SPECIALIZATION */
 
+// 左旋操作;
 inline void 
 _Rb_tree_rotate_left(_Rb_tree_node_base* __x, _Rb_tree_node_base*& __root)
 {
   _Rb_tree_node_base* __y = __x->_M_right;
-  __x->_M_right = __y->_M_left;
+  __x->_M_right = __y->_M_left; // 把 y的左孩子嫁接到原根x
   if (__y->_M_left !=0)
     __y->_M_left->_M_parent = __x;
   __y->_M_parent = __x->_M_parent;
-
+    // 如果旋转之前x是root, root权限转给y
   if (__x == __root)
     __root = __y;
+    // 判断x是它父节点的哪个儿子;爸爸也转给y
   else if (__x == __x->_M_parent->_M_left)
     __x->_M_parent->_M_left = __y;
   else
     __x->_M_parent->_M_right = __y;
-  __y->_M_left = __x;
-  __x->_M_parent = __y;
+  __y->_M_left = __x;   // 现在,你是我儿子;
+  __x->_M_parent = __y; // 现在,我是你爸爸;
 }
 
+// 右旋操作;
 inline void 
 _Rb_tree_rotate_right(_Rb_tree_node_base* __x, _Rb_tree_node_base*& __root)
 {
@@ -296,6 +306,7 @@ _Rb_tree_rebalance(_Rb_tree_node_base* __x, _Rb_tree_node_base*& __root)
   __root->_M_color = _S_rb_tree_black;
 }
 
+// 删除调整操作;
 inline _Rb_tree_node_base*
 _Rb_tree_rebalance_for_erase(_Rb_tree_node_base* __z,
                              _Rb_tree_node_base*& __root,
@@ -434,7 +445,7 @@ _Rb_tree_rebalance_for_erase(_Rb_tree_node_base* __z,
 // data members into the base class.
 
 #ifdef __STL_USE_STD_ALLOCATORS
-
+// 红黑树的 专属配置器;
 // _Base for general standard-conforming allocators.
 template <class _Tp, class _Alloc, bool _S_instanceless>
 class _Rb_tree_alloc_base {
@@ -494,7 +505,7 @@ struct _Rb_tree_base
 };
 
 #else /* __STL_USE_STD_ALLOCATORS */
-
+// 红黑树的基类, 实现了配置器的封装,专注与申请和销毁节点;
 template <class _Tp, class _Alloc>
 struct _Rb_tree_base
 {
@@ -517,7 +528,7 @@ protected:
 };
 
 #endif /* __STL_USE_STD_ALLOCATORS */
-
+// 红黑树继承其 基类, 专注于 增删改查;
 template <class _Key, class _Value, class _KeyOfValue, class _Compare,
           class _Alloc = __STL_DEFAULT_ALLOCATOR(_Value) >
 class _Rb_tree : protected _Rb_tree_base<_Value, _Alloc> {
@@ -611,10 +622,10 @@ protected:
   static _Color_type& _S_color(_Base_ptr __x)
     { return (_Color_type&)(_Link_type(__x)->_M_color); }
 
-  static _Link_type _S_minimum(_Link_type __x) 
+  static _Link_type _S_minimum(_Link_type __x)  // 返回相对去当前位置的最左节点
     { return (_Link_type)  _Rb_tree_node_base::_S_minimum(__x); }
 
-  static _Link_type _S_maximum(_Link_type __x)
+  static _Link_type _S_maximum(_Link_type __x)  // 返回相对去当前位置的最右节点
     { return (_Link_type) _Rb_tree_node_base::_S_maximum(__x); }
 
 public:
