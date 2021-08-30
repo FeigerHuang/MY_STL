@@ -1211,8 +1211,55 @@ int main() {
     return 0;
 }
 
-
 END(que_test)
+
+BEGIN(alloc_test)
+
+
+using std::cin;
+using std::cout;
+using std::endl;
+
+int main() {
+    super_allocator<int> myalloc;
+    int *arr = (int *)myalloc.allocate(sizeof(int) * 20);
+    for (int i = 0; i < 20; ++i) {
+        arr[i] = i + 1;
+    }
+
+    for (int i = 0; i < 20; ++i) {
+        cout << arr[i] << ", ";
+    }
+    
+    arr = (int *)super_allocator<int>::reallocate(arr,sizeof(int)*20, sizeof(int) * 30);
+    for (int i = 20; i < 30; ++i) {
+        arr[i] = i + 1;
+    }
+
+    for (int i = 0; i < 30; ++i) {
+        cout << arr[i] << ", ";
+    }
+    
+    super_allocator<int>::deallocate(arr, sizeof(int) * 30);
+    
+    Node *vec;
+    vec = (Node *)super_allocator<Node>::allocate(sizeof(Node)*10);
+    for (int i = 0; i < 10; ++i) {
+        construct(vec + i, i + 1);
+    }
+
+    for (int i = 0; i < 10; ++i) {
+        cout << BLU << vec[i] << ", " << FIN;
+    }
+    cout << endl;
+    for (int i = 0; i < 10; ++i) {
+        destroy(vec + i);
+    }
+    super_allocator<int>::deallocate(arr, sizeof(int) * 30);
+    return 0;
+}
+
+END(alloc_test)
 
 int main() {
     //allocator_test::main();
@@ -1232,8 +1279,10 @@ int main() {
     //prique_test::main();
     //numeric_test2::main();
     //list_test::main();
-    deque_test::main();
+    //deque_test::main();
     //que_test::main();
+    alloc_test::main();
+    
 
     return 0;
 }
