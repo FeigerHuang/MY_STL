@@ -15,10 +15,10 @@
 
 _MY_NAMESPACE_BEGIN
 
-// unordered_set 类的封装;
+// unordered_map 类的封装;
 template <class Key, class Value,
-         class HashFcn = hash<Value>,
-         class EqualKey = equal_to<Value> >
+         class HashFcn = hash<Key>,
+         class EqualKey = equal_to<Key> >
 class unordered_map {
 private:    // 这里以 pair<key, val> 作为hashtable节点的值插入;
     typedef hashtable<pair<const Key, Value>, Key, HashFcn, select1st<pair<const Key, Value> >, EqualKey>   ht;
@@ -114,8 +114,8 @@ public:
 
 //unordered_mulitmap 类的封装
 template <class Key, class Value,
-         class HashFcn = hash<Value>,
-         class EqualKey = equal_to<Value> >
+         class HashFcn = hash<Key>,
+         class EqualKey = equal_to<Key> >
 class unordered_mulitmap {
 private:    // 这里以 pair<key, val> 作为hashtable节点的值插入;
     typedef hashtable<pair<const Key, Value>, Key, HashFcn, select1st<pair<const Key, Value> >, EqualKey>   ht;

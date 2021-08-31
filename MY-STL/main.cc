@@ -1261,6 +1261,44 @@ int main() {
 
 END(alloc_test)
 
+#include "my_rbtree.h"
+
+BEGIN(rbtree_test)
+
+using std::cin;
+using std::cout;
+using std::endl;
+
+int main() {
+    RB_Tree<int, int> tree;
+    cout << "NIL->val = "<< tree.NIL->value << " , NIL->color = " << tree.NIL->color << endl;
+ 
+    //RB_Tree_Alloc<Node> alloc;
+    //auto p = alloc.get_node();
+    //construct(p, 23);
+    //cout << p->value << endl;
+    //alloc.put_node(p);
+
+    auto p = tree.new_node(666);
+    cout << p->value << endl;
+    tree.delete_node(p);
+    
+    //RB_Tree<int, Node> tee;
+    //auto p2 = tee.new_node(666);
+    //cout << p2->value << endl;
+    //tee.delete_node(p2);
+    int val;
+    while (cin >> val) {
+        tree.insert_unique(val);
+        tree.range();
+    }
+
+
+    return 0; 
+}
+
+END(rbtree_test)
+
 int main() {
     //allocator_test::main();
     //slist_test::main();
@@ -1281,8 +1319,8 @@ int main() {
     //list_test::main();
     //deque_test::main();
     //que_test::main();
-    alloc_test::main();
-    
+    //alloc_test::main();
+    rbtree_test::main();
 
     return 0;
 }
