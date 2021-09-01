@@ -1271,7 +1271,9 @@ using std::endl;
 
 int main() {
     RB_Tree<int, int> tree;
-    cout << "NIL->val = "<< tree.NIL->value << " , NIL->color = " << tree.NIL->color << endl;
+    cout << "tree.empty() = " << std::boolalpha << tree.empty() << ", tree.size()" << tree.size() << endl;
+    //cout << "NIL->val = "<< tree.NIL->value << " , NIL->color = " << tree.NIL->color << endl;
+    //cout << "NIL->child->val = "<< tree.NIL->lchild->value << " , NIL->child->color = " << tree.NIL->lchild->color << endl;
  
     //RB_Tree_Alloc<Node> alloc;
     //auto p = alloc.get_node();
@@ -1279,17 +1281,28 @@ int main() {
     //cout << p->value << endl;
     //alloc.put_node(p);
 
-    auto p = tree.new_node(666);
-    cout << p->value << endl;
-    tree.delete_node(p);
+    //auto p = tree.new_node(666);
+    //cout << p->value << endl;
+    //tree.delete_node(p);
     
     //RB_Tree<int, Node> tee;
     //auto p2 = tee.new_node(666);
     //cout << p2->value << endl;
     //tee.delete_node(p2);
     int val;
+    for (int i = 0; i < 8; ++i) {
+        cin >> val;
+        //tree.insert_unique(val);
+        tree.insert_equal(val);
+        tree.range();
+        cout << "tree.empty() = " << std::boolalpha << tree.empty() << ", tree.size()" << tree.size() << endl;
+    }
+    
+    tree.clear();
+    cout << "tree.empty() = " << std::boolalpha << tree.empty() << ", tree.size()" << tree.size() << endl;
+
     while (cin >> val) {
-        tree.insert_unique(val);
+        tree.erase_unique(val);
         tree.range();
     }
 
