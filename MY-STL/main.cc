@@ -1298,12 +1298,21 @@ int main() {
         cout << "tree.empty() = " << std::boolalpha << tree.empty() << ", tree.size()" << tree.size() << endl;
     }
     
+
+    for (int i = 0; i < 5; ++i) {
+        cin >> val;
+        //cout << "tree.find() :" << val << " = " << tree.find(val) << endl;
+        cout << "tree.find_or_insert() :" << val << " = " << (tree.find_or_insert(val)->value)<< endl;
+        tree.range();
+    }
+
+
     tree.clear();
     cout << "tree.empty() = " << std::boolalpha << tree.empty() << ", tree.size()" << tree.size() << endl;
 
     while (cin >> val) {
         tree.erase_unique(val);
-        tree.range();
+        tree.inorder();
     }
 
 
@@ -1311,6 +1320,27 @@ int main() {
 }
 
 END(rbtree_test)
+
+#include "my_set.h"
+
+BEGIN(mset_test)
+
+using std::cin;
+using std::cout;
+using std::endl;
+
+int main() {
+    set<int> s1;
+    
+    for (int i = 1; i <= 28; ++i) {
+        s1.insert(i);
+    }
+    s1.range();
+    //s1.clear();
+    cout << "set.empty()="<< std::boolalpha << s1.empty() << endl;
+}
+
+END(mset_test)
 
 int main() {
     //allocator_test::main();
@@ -1333,7 +1363,8 @@ int main() {
     //deque_test::main();
     //que_test::main();
     //alloc_test::main();
-    rbtree_test::main();
+    //rbtree_test::main();
+    mset_test::main();
 
     return 0;
 }

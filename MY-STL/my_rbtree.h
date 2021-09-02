@@ -76,7 +76,9 @@ public:
     typedef const value_type            const_reference;
     typedef RB_Tree_Alloc<Value, Alloc> Base;
     typedef TreeNode<Value>*            link_type;
+    typedef const link_type             const_link;
 
+    typedef EqualKey                    key_equal;
 protected:
     using Base::get_node;
     using Base::put_node;
@@ -100,9 +102,14 @@ public:
     void insert_equal(const value_type& x);
     void clear();
     void range();
+    void inorder();
     size_type size() const {return M_node_cnt;}
     bool empty() const {return 0 == M_node_cnt;}
+    bool find(const value_type& x);
+    const link_type find_or_insert(const value_type& x);
 protected:
+    link_type __find_or_insert(link_type node, const value_type& x, link_type& p);
+    link_type __find(link_type node, const value_type& x);
     link_type __insert_unique(link_type node, const value_type& x);
     link_type __insert_equal(link_type node, const value_type& x);
     link_type insert_maintain(link_type node);
@@ -155,6 +162,56 @@ void RB_Tree<Key, Value, Extr, Eq, Alloc>::insert_unique(const value_type& x) {
     return ;
 }
 
+
+// 搜寻或者插入元素;
+template<class Key, class Value,class Extr, class Eq, class Alloc>
+typename RB_Tree<Key, Value, Extr, Eq, Alloc>::const_link
+RB_Tree<Key, Value, Extr, Eq, Alloc>::find_or_insert(const value_type& x) {
+    link_type result;
+    __find_or_insert(root, x, result);
+    return (const_link)result;
+}
+
+template<class Key, class Value,class Extr, class Eq, class Alloc>
+typename RB_Tree<Key, Value, Extr, Eq, Alloc>::link_type
+RB_Tree<Key, Value, Extr, Eq, Alloc>::__find_or_insert(link_type node, const value_type& x, link_type& result) {
+    if (node == NIL) {
+        result = new_node(x);
+        return result;
+    }
+    if (equals(get_key(x), get_key(node->value)) ) {
+        return node;
+    } 
+    else if (get_key(node->value) < get_key(x) ) {
+        node->rchild = __find_or_insert(node->rchild, x, result);
+    } 
+    else {
+        node->lchild = __find_or_insert(node->lchild, x, result);
+    }
+    return insert_maintain(node);
+}
+
+// 从红黑树中查找元素;
+template <class Key, class Value, class Extr, class Eq, class Alloc>
+bool RB_Tree<Key, Value, Extr, Eq, Alloc>::find(const value_type& x) {
+    link_type result = __find(root, x);
+    return result != NIL;
+}
+
+template<class Key, class Value,class Extr, class Eq, class Alloc>
+typename RB_Tree<Key, Value, Extr, Eq, Alloc>::link_type
+RB_Tree<Key, Value, Extr, Eq, Alloc>::__find(link_type node, const value_type& x) {
+    if (node == NIL) return NIL;
+    if (equals(get_key(node->value), get_key(x)) ) {
+        return node;
+    } 
+    else if (get_key(node->value) < get_key(x)) {
+        return __find(node->rchild, x);
+    } else {
+        return __find(node->lchild, x);
+    }
+}
+
 // 封装一成插入函数;
 template<class Key, class Value,class Extr, class Eq, class Alloc>
 typename RB_Tree<Key, Value, Extr, Eq, Alloc>::link_type
@@ -185,13 +242,12 @@ RB_Tree<Key, Value, Extr, Eq, Alloc>::__insert_equal(link_type node, const value
     if (equals(get_key(node->value), get_key(x))) {
         link_type tmp = new_node(x);
         tmp->rchild = node->rchild;
-        tmp->lchild = node->lchild;
         node->rchild = tmp;
-        node->lchild = NIL;
     } else if (get_key(node->value) < get_key(x) ) {
-        node->rchild = __insert_equal(root->rchild, x);
+        //LOG_RBT("access to rchild");
+        node->rchild = __insert_equal(node->rchild, x);
     } else {
-        node->lchild = __insert_equal(root->lchild, x);
+        node->lchild = __insert_equal(node->lchild, x);
     }
     return insert_maintain(node);
 }
@@ -380,6 +436,35 @@ void RB_Tree<Key, Value, Extr, Eq, Alloc>::__preorder(link_type node) {
            node->value << "|" << node->lchild->value << ", " << node->rchild->value << "|");
     __preorder(node->lchild);
     __preorder(node->rchild);
+}
+
+// 中序遍历扫描一遍RB_Tree;
+template<class Key, class Value,class Extr, class Eq, class Alloc>
+void RB_Tree<Key, Value, Extr, Eq, Alloc>::inorder() {
+    link_type cur = root;
+    std::cerr << "{ ";
+    while (cur != NIL) {
+        if (cur->lchild == NIL) {
+            std::cerr << cur->value << ", ";
+            cur = cur->rchild;
+        }
+        else {
+            link_type tmp = cur->lchild;
+            while (tmp->rchild != NIL && tmp->rchild != cur) {
+                tmp = tmp->rchild;
+            }
+            if (tmp->rchild == NIL) {
+                tmp->rchild = cur;
+                cur = cur->lchild;
+            } else {
+                tmp->rchild = NIL;
+                std::cerr << cur->value << ", ";
+                cur = cur->rchild;
+            }
+        }
+    }
+    std::cerr << " }";
+    return ;
 }
 
 // 清除所有节点;

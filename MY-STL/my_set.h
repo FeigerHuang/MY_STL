@@ -11,13 +11,13 @@
 #define _MY_NAMESPACE_BEGIN     namespace feiger{
 #define _MY_NAMESPACE_END       }
 #include "my_function.h"
-#include "my_rbtree.h.h"
+#include "my_rbtree.h"
 
 _MY_NAMESPACE_BEGIN
 
 // unordered_set 类的封装;
-template <class Key, 
-         class EqualKey = equal_to<Key> >
+template <class Value, 
+         class EqualKey = equal_to<Value> >
 class set  {
 private:
     typedef RB_Tree<Value, Value, identify<Value>, EqualKey> tree;
@@ -34,6 +34,13 @@ public:
     typedef typename tree::reference          reference;
     typedef typename tree::const_reference    const_reference;
 
+public:
+    set() : rep(key_equal()) {}
+    explicit set(const key_equal& cmp) : rep(cmp) {}
+    bool empty() const {return rep.empty();}
+    void clear() {rep.clear();}
+    void insert(const value_type& x) {rep.insert_unique(x);}
+    void range() {rep.inorder();}
 
 };
 
