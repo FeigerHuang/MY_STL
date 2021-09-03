@@ -1302,7 +1302,7 @@ int main() {
     for (int i = 0; i < 5; ++i) {
         cin >> val;
         //cout << "tree.find() :" << val << " = " << tree.find(val) << endl;
-        cout << "tree.find_or_insert() :" << val << " = " << (tree.find_or_insert(val)->value)<< endl;
+        //cout << "tree.find_or_insert() :" << val << " = " << (tree.find_or_insert(val)->value)<< endl;
         tree.range();
     }
 
@@ -1334,13 +1334,72 @@ int main() {
     
     for (int i = 1; i <= 28; ++i) {
         s1.insert(i);
+        cout << "set.size()=" << s1.size() << endl;
     }
     s1.range();
     //s1.clear();
     cout << "set.empty()="<< std::boolalpha << s1.empty() << endl;
+    int x;
+    for (int i = 1; i < 5; ++i) {
+        cin >> x;
+        cout << "set.find (" << x << ")=" << s1.find(x)  << endl;
+    }
+ 
+    while (cin >> x) {
+        cout << "set.erase (" << x << ")=" << endl;
+        s1.erase(x);
+        s1.range();
+    }
 }
 
 END(mset_test)
+
+#include "my_map.h"
+
+BEGIN(mmap_test)
+
+using std::cin;
+using std::cout;
+using std::endl;
+
+int main() {
+    
+    map<int, char> mp1;
+    
+    for (int i = 1; i <= 25; ++i) {
+        mp1.insert(make_pair<int,char>(i, 'a' + i));
+        cout << "map.size()=" << mp1.size() << endl;
+    }
+    mp1.range();
+    cout << "map.empty()="<< std::boolalpha << mp1.empty() << endl;
+    
+    auto it = mp1.begin();
+    //while (it != mp1.end() ) {
+    //    cout << "key["<<it->first << "]=" << it->second <<  endl;  
+    //    it.increment();
+    //}
+    
+    while (it != mp1.end() ) {
+        auto tmp = it++;
+        cout << "key["<<tmp->first << "]=" << tmp->second <<  endl;  
+        cout << "after iterator++ :";
+        cout << "key["<<it->first << "]=" << it->second <<  endl;  
+        cout << "-------------------------------------------------\n";
+    }
+    
+    int key;
+    char val;
+    while (cin >> key) {
+        cout << "key[" << key << "]=" << mp1[key].second << endl;
+        cout << "value modify to : ";  
+        cin >> val;
+        //mp1[key] = val;
+        cout << "key[" << key << "]=" << mp1[key].second << endl;
+    }
+
+}
+
+END(mmap_test)
 
 int main() {
     //allocator_test::main();
@@ -1364,7 +1423,9 @@ int main() {
     //que_test::main();
     //alloc_test::main();
     //rbtree_test::main();
-    mset_test::main();
+    //mset_test::main();
+    mmap_test::main();
+
 
     return 0;
 }

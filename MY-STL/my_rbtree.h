@@ -21,6 +21,7 @@
 #define _MY_NAMESPACE_BEGIN     namespace feiger{
 #define _MY_NAMESPACE_END       }
 #include "my_pair.h"
+#include "my_vector.h"
 #include "my_function.h"
 _MY_NAMESPACE_BEGIN
 
@@ -37,7 +38,7 @@ struct TreeNode {
     TreeNode(const value_type& x, color_type c = 0, link_type l = nullptr, link_type r = nullptr)
         : value(x), color(c), lchild(l), rchild(r) 
     {
-        LOG_RBT("Node construct done x = " << x << " ,color = " << c);    
+        LOG_RBT("Node construct done ,color = " << c);    
     }
     ~TreeNode() {
         LOG_RBT("~Node() done");
@@ -61,9 +62,90 @@ protected:
     }
 };
 
+// 声明一下；
+template<class Key, class Value, class ExtractKey , class EqualKey ,class Alloc> class RB_Tree;
+
+
+// reb_tree iterator 定义 BEGIN
+template <class Key, class Value,
+            class ExtractKey, class EqualKey,class Alloc>
+struct RB_Tree_iterator {           
+    typedef RB_Tree<Key, Value, ExtractKey, EqualKey, Alloc>
+        _M_rbtree;
+    typedef RB_Tree_iterator<Key,Value, ExtractKey, EqualKey, Alloc>
+        iterator;
+     
+    typedef forward_iterator_tag                     iterator_category;
+    typedef typename _M_rbtree::value_type           value_type;
+    typedef typename _M_rbtree::pointer              pointer;
+    typedef typename _M_rbtree::const_pointer        const_pointer;
+    typedef typename _M_rbtree::link_type            link_type;
+    typedef typename _M_rbtree::difference_type      difference_type;
+    typedef typename _M_rbtree::reference            reference;
+    typedef typename _M_rbtree::const_reference      const_reference;
+
+    typedef EqualKey                        key_equal;
+    typedef ExtractKey                      key_extr;
+
+    RB_Tree_iterator(const link_type& x) : _M_next(x), sta(1, _M_rbtree::NIL) {
+        link_type cur = _M_next;
+        while (cur != _M_rbtree::NIL) {
+            sta.push_back(cur);
+            cur = cur->lchild;
+        }
+        _M_node = sta.back();
+        sta.pop_back();
+        _M_next = _M_node->rchild;
+    }
+    RB_Tree_iterator(const RB_Tree_iterator& rhs)
+        : _M_next(rhs._M_next), _M_node(rhs._M_node) {}
+    void increment() {
+        link_type cur = _M_next;
+        while (cur != _M_rbtree::NIL) {
+            sta.push_back(cur);
+            cur = cur->lchild;
+        }
+        _M_node = sta.back();
+        sta.pop_back();
+        _M_next = _M_node->rchild;
+    }
+
+    reference operator*(){return _M_node->value;}
+    pointer operator->(){return &(operator*());}
+    
+    iterator operator++(){
+        this->increment();
+        return *this;
+    }
+    iterator operator++(int) {
+        iterator tmp(*this);
+        ++*this;
+        return tmp;
+    }
+
+    bool operator==(const iterator& it) {
+        return this->_M_node == it._M_node;
+    }
+    bool operator!=(const iterator& it) {
+        return this->_M_node != it._M_node;
+    }
+    void swap(RB_Tree_iterator& rhs) {
+        using feiger::swap;
+        swap(_M_node, rhs._M_node);
+        swap(_M_next, rhs._M_next);
+    }
+private:
+    link_type   _M_node;
+    link_type   _M_next;
+    vector<link_type> sta;
+};
+
+// 红黑树的实现；
 template<class Key, class Value, class ExtractKey = identify<Key>, class EqualKey = equal_to<Key>,
         class Alloc = simple_alloc<TreeNode<Value>> >
 class RB_Tree : protected RB_Tree_Alloc<Value, Alloc>  {
+protected:
+    friend class RB_Tree_iterator<Key, Value, ExtractKey, EqualKey, Alloc>;
 public:
     enum color{red = 0, black = 1, dblack = 2};
     typedef Key                         key_type;
@@ -79,10 +161,10 @@ public:
     typedef const link_type             const_link;
 
     typedef EqualKey                    key_equal;
+    typedef RB_Tree_iterator<Key, Value, ExtractKey, EqualKey, Alloc> iterator;
 protected:
     using Base::get_node;
     using Base::put_node;
-
 private:
     TreeNode<Value>*  root;
     EqualKey          equals;
@@ -97,6 +179,8 @@ public:
         this->clear();
         return;
     }
+    iterator begin() {return iterator(root);}
+    iterator end() {return iterator(NIL);}
     void insert_unique(const value_type& x); 
     void erase_unique(const value_type& x); 
     void insert_equal(const value_type& x);
@@ -106,9 +190,9 @@ public:
     size_type size() const {return M_node_cnt;}
     bool empty() const {return 0 == M_node_cnt;}
     bool find(const value_type& x);
-    const link_type find_or_insert(const value_type& x);
+    reference find_or_insert(const key_type& x);
 protected:
-    link_type __find_or_insert(link_type node, const value_type& x, link_type& p);
+    link_type __find_or_insert(link_type node, const key_type& x, link_type& p);
     link_type __find(link_type node, const value_type& x);
     link_type __insert_unique(link_type node, const value_type& x);
     link_type __insert_equal(link_type node, const value_type& x);
@@ -130,7 +214,7 @@ private:
         tmp->color = red;
         tmp->lchild = NIL;
         tmp->rchild = NIL;
-        LOG_RBT("alloc tmp->value = " << tmp->value); 
+        LOG_RBT("alloc tmp->value = " << get_key(tmp->value)); 
         ++M_node_cnt;
         return tmp;
     }
@@ -165,29 +249,35 @@ void RB_Tree<Key, Value, Extr, Eq, Alloc>::insert_unique(const value_type& x) {
 
 // 搜寻或者插入元素;
 template<class Key, class Value,class Extr, class Eq, class Alloc>
-typename RB_Tree<Key, Value, Extr, Eq, Alloc>::const_link
-RB_Tree<Key, Value, Extr, Eq, Alloc>::find_or_insert(const value_type& x) {
+typename RB_Tree<Key, Value, Extr, Eq, Alloc>::reference
+RB_Tree<Key, Value, Extr, Eq, Alloc>::find_or_insert(const key_type& x) {
     link_type result;
     __find_or_insert(root, x, result);
-    return (const_link)result;
+    LOG_RBT("key=" << x << " resul.val=" << result->value.second);
+    return (result->value);
 }
 
 template<class Key, class Value,class Extr, class Eq, class Alloc>
 typename RB_Tree<Key, Value, Extr, Eq, Alloc>::link_type
-RB_Tree<Key, Value, Extr, Eq, Alloc>::__find_or_insert(link_type node, const value_type& x, link_type& result) {
+RB_Tree<Key, Value, Extr, Eq, Alloc>::__find_or_insert(link_type node, const key_type& x, link_type& result) {
     if (node == NIL) {
-        result = new_node(x);
+        LOG_RBT("264");
+        result = new_node(Value());
         return result;
     }
-    if (equals(get_key(x), get_key(node->value)) ) {
+    if (equals(x, get_key(node->value)) ) {
+        LOG_RBT( RED <<"key:"<< x << "=" << node->value.second << FIN);
         return node;
     } 
-    else if (get_key(node->value) < get_key(x) ) {
+    else if (get_key(node->value) < x ) {
+        LOG_RBT("273");
         node->rchild = __find_or_insert(node->rchild, x, result);
     } 
     else {
         node->lchild = __find_or_insert(node->lchild, x, result);
+        LOG_RBT("278");
     }
+    LOG_RBT("280");
     return insert_maintain(node);
 }
 
@@ -445,7 +535,7 @@ void RB_Tree<Key, Value, Extr, Eq, Alloc>::inorder() {
     std::cerr << "{ ";
     while (cur != NIL) {
         if (cur->lchild == NIL) {
-            std::cerr << cur->value << ", ";
+            std::cerr << get_key(cur->value) << ", ";
             cur = cur->rchild;
         }
         else {
@@ -458,7 +548,7 @@ void RB_Tree<Key, Value, Extr, Eq, Alloc>::inorder() {
                 cur = cur->lchild;
             } else {
                 tmp->rchild = NIL;
-                std::cerr << cur->value << ", ";
+                std::cerr << get_key(cur->value) << ", ";
                 cur = cur->rchild;
             }
         }
