@@ -43,6 +43,7 @@ struct TreeNode {
     ~TreeNode() {
         LOG_RBT("~Node() done");
     }
+    
 };
 
 // 红黑树专属空间配置器;
@@ -182,22 +183,22 @@ public:
     iterator begin() {return iterator(root);}
     iterator end() {return iterator(NIL);}
     void insert_unique(const value_type& x); 
-    void erase_unique(const value_type& x); 
     void insert_equal(const value_type& x);
     void clear();
     void range();
     void inorder();
+    void erase_unique(const key_type& x); 
     size_type size() const {return M_node_cnt;}
     bool empty() const {return 0 == M_node_cnt;}
-    bool find(const value_type& x);
+    bool find(const key_type& x);
     reference find_or_insert(const key_type& x);
 protected:
     link_type __find_or_insert(link_type node, const key_type& x, link_type& p);
-    link_type __find(link_type node, const value_type& x);
+    link_type __find(link_type node, const key_type& x);
     link_type __insert_unique(link_type node, const value_type& x);
     link_type __insert_equal(link_type node, const value_type& x);
     link_type insert_maintain(link_type node);
-    link_type __erase_unique(link_type node, const value_type& x);
+    link_type __erase_unique(link_type node, const key_type& x);
     link_type erase_maintain(link_type node);
     bool has_red_child(link_type node);
     link_type left_rotate(link_type node);
@@ -252,8 +253,9 @@ template<class Key, class Value,class Extr, class Eq, class Alloc>
 typename RB_Tree<Key, Value, Extr, Eq, Alloc>::reference
 RB_Tree<Key, Value, Extr, Eq, Alloc>::find_or_insert(const key_type& x) {
     link_type result;
-    __find_or_insert(root, x, result);
-    LOG_RBT("key=" << x << " resul.val=" << result->value.second);
+    root = __find_or_insert(root, x, result);
+    root->color = black;
+    LOG_RBT("successor return : value = " << result->value.second);
     return (result->value);
 }
 
@@ -261,41 +263,38 @@ template<class Key, class Value,class Extr, class Eq, class Alloc>
 typename RB_Tree<Key, Value, Extr, Eq, Alloc>::link_type
 RB_Tree<Key, Value, Extr, Eq, Alloc>::__find_or_insert(link_type node, const key_type& x, link_type& result) {
     if (node == NIL) {
-        LOG_RBT("264");
         result = new_node(Value());
         return result;
     }
     if (equals(x, get_key(node->value)) ) {
-        LOG_RBT( RED <<"key:"<< x << "=" << node->value.second << FIN);
+        LOG_RBT(RED <<"key:"<< x << "=" << node->value.second << FIN);
+        result = node;
         return node;
     } 
     else if (get_key(node->value) < x ) {
-        LOG_RBT("273");
         node->rchild = __find_or_insert(node->rchild, x, result);
     } 
     else {
         node->lchild = __find_or_insert(node->lchild, x, result);
-        LOG_RBT("278");
     }
-    LOG_RBT("280");
     return insert_maintain(node);
 }
 
 // 从红黑树中查找元素;
 template <class Key, class Value, class Extr, class Eq, class Alloc>
-bool RB_Tree<Key, Value, Extr, Eq, Alloc>::find(const value_type& x) {
+bool RB_Tree<Key, Value, Extr, Eq, Alloc>::find(const key_type& x) {
     link_type result = __find(root, x);
     return result != NIL;
 }
 
 template<class Key, class Value,class Extr, class Eq, class Alloc>
 typename RB_Tree<Key, Value, Extr, Eq, Alloc>::link_type
-RB_Tree<Key, Value, Extr, Eq, Alloc>::__find(link_type node, const value_type& x) {
+RB_Tree<Key, Value, Extr, Eq, Alloc>::__find(link_type node, const key_type& x) {
     if (node == NIL) return NIL;
-    if (equals(get_key(node->value), get_key(x)) ) {
+    if (equals(get_key(node->value), x) ) {
         return node;
     } 
-    else if (get_key(node->value) < get_key(x)) {
+    else if (get_key(node->value) < x) {
         return __find(node->rchild, x);
     } else {
         return __find(node->lchild, x);
@@ -442,7 +441,7 @@ RB_Tree<Key, Value, Extr, Eq, Alloc>::erase_maintain(link_type node) {
 
 // 红黑树删除操作;
 template<class Key, class Value,class Extr, class Eq, class Alloc>
-void RB_Tree<Key, Value, Extr, Eq, Alloc>::erase_unique(const value_type& x) {
+void RB_Tree<Key, Value, Extr, Eq, Alloc>::erase_unique(const key_type& x) {
     this->root = __erase_unique(root, x);
     root->color = black;
     return ;
@@ -451,9 +450,9 @@ void RB_Tree<Key, Value, Extr, Eq, Alloc>::erase_unique(const value_type& x) {
 // 红黑树删除操作;
 template<class Key, class Value,class Extr, class Eq, class Alloc>
 typename RB_Tree<Key, Value, Extr, Eq, Alloc>::link_type
-RB_Tree<Key, Value, Extr, Eq, Alloc>::__erase_unique(link_type node, const value_type& x) {
+RB_Tree<Key, Value, Extr, Eq, Alloc>::__erase_unique(link_type node, const key_type& x) {
     if (node == NIL) return NIL;
-    if (equals(get_key(x), get_key(node->value)) ) {
+    if (equals(x, get_key(node->value)) ) {
         // 当删除节点度为0 或者 为1;
         if (node->lchild == NIL || node->rchild == NIL) {
             link_type tmp = (node->lchild == NIL ? node->rchild : node->lchild);
@@ -463,11 +462,11 @@ RB_Tree<Key, Value, Extr, Eq, Alloc>::__erase_unique(link_type node, const value
         } else {
             link_type tmp = predecessor(node);
             node->value = tmp->value;
-            node->lchild = __erase_unique(node->lchild, tmp->value);
+            node->lchild = __erase_unique(node->lchild, get_key(tmp->value));
             return node;
         }
     } 
-    else if (get_key(x) < get_key(node->value)) {
+    else if (x < get_key(node->value)) {
         node->lchild = __erase_unique(node->lchild, x);
     } else {
         node->rchild = __erase_unique(node->rchild, x);

@@ -24,7 +24,7 @@ public:
     typedef EqualKey                   key_equal;
     
 private:
-    typedef RB_Tree<Key, pair<const Key, T>, select1st<value_type>, EqualKey> tree;
+    typedef RB_Tree<Key, pair<Key, T>, select1st<value_type>, EqualKey> tree;
     tree rep;
 public:
     typedef typename tree::size_type          size_type;
@@ -37,6 +37,7 @@ public:
 public:
     map() : rep(key_equal()) {}
     explicit map(const key_equal& cmp) : rep(cmp) {}
+    
     iterator begin() {return rep.begin();}
     iterator end() {return rep.end();} 
     bool empty() const {return rep.empty();}
@@ -45,9 +46,9 @@ public:
     void range() {rep.inorder();}
     bool find(const value_type& x) {return rep.find(x);}
     size_type size() {return rep.size();}
-    void erase(const value_type& x) {rep.erase_unique(x);}
-    value_type& operator[](const key_type& x) {
-        return rep.find_or_insert(x);
+    void erase(const key_type& x) {rep.erase_unique(x);}
+    data_type& operator[](const key_type& x) {
+        return rep.find_or_insert(x).second;
     }
 };
 

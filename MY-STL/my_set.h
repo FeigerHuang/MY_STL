@@ -33,10 +33,13 @@ public:
     typedef typename tree::pointer            pointer;
     typedef typename tree::reference          reference;
     typedef typename tree::const_reference    const_reference;
-
+    typedef typename tree::iterator           iterator;
 public:
     set() : rep(key_equal()) {}
     explicit set(const key_equal& cmp) : rep(cmp) {}
+    
+    iterator begin() {return rep.begin();}
+    iterator end() {return rep.end();}
     bool empty() const {return rep.empty();}
     void clear() {rep.clear();}
     void insert(const value_type& x) {rep.insert_unique(x);}
@@ -44,9 +47,7 @@ public:
     bool find(const value_type& x) {return rep.find(x);}
     size_type size() {return rep.size();}
     void erase(const value_type& x) {rep.erase_unique(x);}
-
 };
-
 
 
 _MY_NAMESPACE_END  

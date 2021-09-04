@@ -1335,20 +1335,29 @@ int main() {
     for (int i = 1; i <= 28; ++i) {
         s1.insert(i);
         cout << "set.size()=" << s1.size() << endl;
+        cout << "set = {";
+        for (auto it = s1.begin(); it != s1.end(); ++it) {
+            cout << *it << " ,";
+        }
+        cout << "}\n";
     }
     s1.range();
     //s1.clear();
     cout << "set.empty()="<< std::boolalpha << s1.empty() << endl;
     int x;
     for (int i = 1; i < 5; ++i) {
+        cout << "input what you want to find : ";
         cin >> x;
         cout << "set.find (" << x << ")=" << s1.find(x)  << endl;
     }
  
+    cout << "input what you want to erase : ";
     while (cin >> x) {
-        cout << "set.erase (" << x << ")=" << endl;
         s1.erase(x);
+    
         s1.range();
+        cout << endl;
+        cout << "input what you want to erase : ";
     }
 }
 
@@ -1387,14 +1396,27 @@ int main() {
         cout << "-------------------------------------------------\n";
     }
     
+    mp1.range();
+    cout << endl << "scanf what you want to erase :";
     int key;
     char val;
     while (cin >> key) {
-        cout << "key[" << key << "]=" << mp1[key].second << endl;
+        //cout << "key[" << key << "]=" << mp1[key] << endl;
+        mp1.erase(key);
+        mp1.range();
+        cout << "mp1.size()="<< mp1.size() << endl;
+        cout << endl << "scanf what you want to erase :";
+    }
+    
+    cout << endl << "scanf what you want to query :";
+    while (cin >> key) {
+        cout << "key[" << key << "]=" << mp1[key] << endl;
         cout << "value modify to : ";  
         cin >> val;
-        //mp1[key] = val;
-        cout << "key[" << key << "]=" << mp1[key].second << endl;
+        mp1[key] = val;
+        cout << "key[" << key << "]=" << mp1[key] << endl;
+        mp1.range();
+        cout << endl << "scanf what you want to query :";
     }
 
 }
