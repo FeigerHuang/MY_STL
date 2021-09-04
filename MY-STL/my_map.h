@@ -24,7 +24,7 @@ public:
     typedef EqualKey                   key_equal;
     
 private:
-    typedef RB_Tree<Key, pair<Key, T>, select1st<value_type>, EqualKey> tree;
+    typedef RB_Tree<Key, pair<const Key, T>, select1st<value_type>, EqualKey> tree;
     tree rep;
 public:
     typedef typename tree::size_type          size_type;

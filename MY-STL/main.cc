@@ -1392,6 +1392,7 @@ int main() {
         auto tmp = it++;
         cout << "key["<<tmp->first << "]=" << tmp->second <<  endl;  
         cout << "after iterator++ :";
+        //it->first = 233;
         cout << "key["<<it->first << "]=" << it->second <<  endl;  
         cout << "-------------------------------------------------\n";
     }

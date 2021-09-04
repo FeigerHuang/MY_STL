@@ -461,9 +461,13 @@ RB_Tree<Key, Value, Extr, Eq, Alloc>::__erase_unique(link_type node, const key_t
             return tmp;
         } else {
             link_type tmp = predecessor(node);
-            node->value = tmp->value;
-            node->lchild = __erase_unique(node->lchild, get_key(tmp->value));
-            return node;
+            link_type rep_node = new_node(tmp->value);
+            rep_node->lchild = node->lchild;
+            rep_node->rchild = node->rchild;
+            delete_node(node);
+            //node->value = tmp->value; 为了const值可以删除, 重新分配一个节点;
+            rep_node->lchild = __erase_unique(rep_node->lchild, get_key(tmp->value));
+            return rep_node;
         }
     } 
     else if (x < get_key(node->value)) {
