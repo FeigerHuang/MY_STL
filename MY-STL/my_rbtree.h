@@ -464,8 +464,9 @@ RB_Tree<Key, Value, Extr, Eq, Alloc>::__erase_unique(link_type node, const key_t
             link_type rep_node = new_node(tmp->value);
             rep_node->lchild = node->lchild;
             rep_node->rchild = node->rchild;
+            rep_node->color = node->color;
             delete_node(node);
-            //node->value = tmp->value; 为了const值可以删除, 重新分配一个节点;
+            //node->value = tmp->value; 有点value对象可能没有赋值运算,利用构造函数重新分配一个节点;
             rep_node->lchild = __erase_unique(rep_node->lchild, get_key(tmp->value));
             return rep_node;
         }
