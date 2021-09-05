@@ -13,3 +13,17 @@
 动刀甚微，謋然已解，如土委地。提刀而立，为之四顾，为之踌躇满志，善刀而藏之。--<<庖丁解牛>>**
 
 -  借庖丁之言与诸君共勉!
+
+------------------------------------------------------------------
+- 目前项目实现包括 :   
+
+                       容器 : vector, deque, list, set, map, slist, hashtable...
+                       仿函数 : greater, less, logic_and, logic_or....
+                       算法 : sort, lower_bound, up_bound, inner_product, heap算法.....
+                       空间配置器 : 一级空间配置器 allocator, 二级空间配置器 super_allocator;
+                       容器适配器 : stack, queue, priority_que..
+                       各容器迭代器 及 相关萃取技术;
+- 目前不足之处 : 
+
+                  空间配置器及相关容器不支持多线程, 未使用lock, 部分容器未实现移动拷贝, 移动赋值运算符重载;
+                  构造函数较为单一, 未实现列表初始化构造与传入迭代器构造; 
