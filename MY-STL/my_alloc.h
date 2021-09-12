@@ -241,7 +241,7 @@ char* super_allocator<T>::chunk_alloc(size_t size, int& nobjs) {
     size_t bytes_left = end_free - start_free; // 计算内存池所剩余大小;
 
     if (bytes_left >= total_bytes) {
-        // 内存池水量够, 弱水三千只取 total_bytes, 调整起始位;
+        // 内存池水量够, 若水三千只取 total_bytes, 调整起始位;
         result = start_free;
         start_free += total_bytes;
         return (char *)result;
